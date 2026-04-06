@@ -20,10 +20,10 @@ export const useCatalogStore = defineStore('catalog', () => {
         catalogApi.getComplexityLevels(),
         catalogApi.getSupplementaryOptions(),
       ])
-      categories.value = cat.data
-      designOptions.value = design.data
-      complexityLevels.value = complexity.data
-      supplementaryOptions.value = options.data
+      categories.value = cat.data.results ?? cat.data
+      designOptions.value = design.data.results ?? design.data
+      complexityLevels.value = complexity.data.results ?? complexity.data
+      supplementaryOptions.value = options.data.results ?? options.data
       loaded.value = true
     } finally {
       loading.value = false
