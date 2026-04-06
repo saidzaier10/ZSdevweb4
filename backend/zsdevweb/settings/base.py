@@ -137,6 +137,8 @@ USE_TZ = True
 # Fichiers statiques et médias
 # ============================================
 STATIC_URL = '/static/'
+
+FIXTURE_DIRS = [BASE_DIR / 'fixtures']
 STATIC_ROOT = config('STATIC_ROOT', default=str(BASE_DIR / 'staticfiles'))
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
