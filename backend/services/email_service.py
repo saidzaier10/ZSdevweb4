@@ -22,10 +22,12 @@ class EmailService:
 
         subject = f'Votre devis {quote.quote_number} — Zsdevweb'
 
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'https://zsdevweb.fr')
         context = {
             'quote': quote,
             'company_name': 'Zsdevweb',
-            'view_url': f'{settings.FRONTEND_URL if hasattr(settings, "FRONTEND_URL") else ""}/devis/{quote.uuid}',
+            'view_url': f'{frontend_url}/devis/{quote.uuid}',
+            'sign_url': f'{frontend_url}/devis/{quote.uuid}/signer?token={quote.signature_token}',
         }
 
         try:

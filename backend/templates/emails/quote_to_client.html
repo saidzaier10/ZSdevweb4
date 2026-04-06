@@ -124,8 +124,14 @@
 
       <!-- CTA -->
       <div class="cta-block">
-        <a href="{{ view_url }}" class="btn">Consulter et accepter mon devis →</a>
+        <a href="{{ sign_url }}" class="btn">✍️ Signer et accepter mon devis →</a>
         <p class="validity">Offre valable jusqu'au {{ quote.valid_until|date:"d/m/Y" }}</p>
+      </div>
+
+      <div style="text-align:center; margin-top:12px;">
+        <a href="{{ view_url }}" style="font-size:13px; color:#64748b; text-decoration:underline;">
+          Consulter le détail du devis
+        </a>
       </div>
 
       <p style="font-size:14px; color:#94a3b8; line-height:1.7; border-top:1px solid #e2e8f0; padding-top:20px;">

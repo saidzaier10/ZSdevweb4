@@ -32,7 +32,10 @@ PLAN DE PAIEMENT EN 3 FOIS
 
 Ce devis est valable jusqu'au {{ quote.valid_until|date:"d/m/Y" }}.
 
-Pour consulter et accepter votre devis en ligne :
+✍️ SIGNER ET ACCEPTER MON DEVIS :
+{{ sign_url }}
+
+Consulter le détail :
 {{ view_url }}
 
 Des questions ? Répondez à cet email ou contactez-moi via https://zsdevweb.fr/contact

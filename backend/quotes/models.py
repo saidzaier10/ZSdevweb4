@@ -112,6 +112,9 @@ class Quote(models.Model):
         if not self.valid_until:
             from datetime import timedelta
             self.valid_until = (timezone.now() + timedelta(days=30)).date()
+        if not self.signature_token:
+            import secrets
+            self.signature_token = secrets.token_urlsafe(48)
         super().save(*args, **kwargs)
 
     @property

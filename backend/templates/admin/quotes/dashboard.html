@@ -1,0 +1,210 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Dashboard — Zsdevweb Admin{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+  .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .stat-card.blue::before { background: #3b82f6; }
+  .stat-card.green::before { background: #10b981; }
+  .stat-card.purple::before { background: #8b5cf6; }
+  .stat-card.orange::before { background: #f59e0b; }
+  .stat-card.red::before { background: #ef4444; }
+  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-bottom: 6px; }
+  .stat-card .value { font-size: 28px; font-weight: 800; color: #111827; line-height: 1; }
+  .stat-card .sub { font-size: 12px; color: #9ca3af; margin-top: 6px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin: 28px 0 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .table-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+  .table-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-card thead { background: #f9fafb; }
+  .table-card th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; }
+  .table-card td { padding: 10px 14px; border-top: 1px solid #f3f4f6; color: #374151; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #3b82f6; border-radius: 3px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 0 0 40px;">
+
+  <!-- En-tête -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+    <div>
+      <h1 style="margin:0; font-size:22px; font-weight:800; color:#111827;">Dashboard</h1>
+      <p style="margin:4px 0 0; color:#6b7280; font-size:13px;">Vue d'ensemble de votre activité commerciale</p>
+    </div>
+    <a href="{% url 'admin:quotes_quote_changelist' %}" style="padding:8px 16px; background:#3b82f6; color:white; border-radius:6px; text-decoration:none; font-size:13px; font-weight:600;">Voir tous les devis →</a>
+  </div>
+
+  <!-- Stats devis -->
+  <div class="section-title">Devis</div>
+  <div class="dashboard-grid">
+    <div class="stat-card blue">
+      <div class="label">Total devis</div>
+      <div class="value">{{ quotes_stats.total }}</div>
+      <div class="sub">{{ quotes_stats.this_month }} ce mois-ci</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">Acceptés</div>
+      <div class="value">{{ quotes_stats.accepted }}</div>
+      <div class="sub">Taux {{ quotes_stats.conversion_rate }}%</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="label">En attente</div>
+      <div class="value">{{ quotes_stats.pending }}</div>
+      <div class="sub">À relancer</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">CA total</div>
+      <div class="value">{{ quotes_stats.total_revenue|floatformat:0 }} €</div>
+      <div class="sub">{{ quotes_stats.monthly_revenue|floatformat:0 }} € ce mois</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="label">Panier moyen</div>
+      <div class="value">{{ quotes_stats.avg_value|floatformat:0 }} €</div>
+      <div class="sub">Par devis accepté</div>
+    </div>
+  </div>
+
+  <!-- Stats leads -->
+  <div class="section-title">Leads</div>
+  <div class="dashboard-grid">
+    <div class="stat-card blue">
+      <div class="label">Total leads</div>
+      <div class="value">{{ leads_stats.total }}</div>
+      <div class="sub">{{ leads_stats.this_month }} ce mois-ci</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">Convertis</div>
+      <div class="value">{{ leads_stats.converted }}</div>
+      <div class="sub">{% if leads_stats.total %}{{ leads_stats.converted|floatformat:0 }}{% endif %}</div>
+    </div>
+    <div class="stat-card red">
+      <div class="label">Leads chauds</div>
+      <div class="value">{{ leads_stats.hot }}</div>
+      <div class="sub">Score ≥ 60</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="label">Score moyen</div>
+      <div class="value">{{ leads_stats.avg_score|floatformat:0 }}</div>
+      <div class="sub">/ 100</div>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="two-col" style="margin-top: 28px;">
+
+    <!-- Derniers devis -->
+    <div>
+      <div class="section-title">Derniers devis</div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Client</th>
+              <th>Montant</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in recent_quotes %}
+            <tr>
+              <td><a href="{% url 'admin:quotes_quote_change' q.pk %}" style="color:#3b82f6;text-decoration:none;font-weight:600">{{ q.quote_number }}</a></td>
+              <td>{{ q.client_name }}</td>
+              <td style="font-weight:600">{{ q.total_ttc|floatformat:0 }} €</td>
+              <td>
+                {% if q.status == 'accepted' %}<span class="badge badge-green">Accepté</span>
+                {% elif q.status == 'sent' %}<span class="badge badge-blue">Envoyé</span>
+                {% elif q.status == 'viewed' %}<span class="badge" style="background:#ede9fe;color:#5b21b6">Consulté</span>
+                {% elif q.status == 'expired' %}<span class="badge badge-yellow">Expiré</span>
+                {% elif q.status == 'rejected' %}<span class="badge badge-red">Refusé</span>
+                {% else %}<span class="badge" style="background:#f3f4f6;color:#6b7280">Brouillon</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:20px">Aucun devis</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Leads chauds -->
+    <div>
+      <div class="section-title">Leads les plus chauds</div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Source</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lead in hot_leads %}
+            <tr>
+              <td>
+                <div style="font-weight:600">{{ lead.name|default:lead.email }}</div>
+                <div style="font-size:11px;color:#9ca3af">{{ lead.email }}</div>
+              </td>
+              <td><span style="font-size:11px;color:#6b7280">{{ lead.get_source_display }}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="progress-bar" style="width:60px">
+                    <div class="progress-fill" style="width:{{ lead.score }}%;background:{% if lead.score >= 70 %}#10b981{% elif lead.score >= 40 %}#f59e0b{% else %}#ef4444{% endif %}"></div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:{% if lead.score >= 70 %}#065f46{% elif lead.score >= 40 %}#92400e{% else %}#991b1b{% endif %}">{{ lead.score }}</span>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:20px">Aucun lead</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Top types de projets -->
+  {% if top_types %}
+  <div class="section-title">Top types de projets</div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Type de projet</th>
+          <th>Nombre de devis</th>
+          <th>CA généré</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in top_types %}
+        <tr>
+          <td style="font-weight:600">{{ t.project_type__name }}</td>
+          <td>{{ t.count }}</td>
+          <td style="font-weight:700;color:#10b981">{{ t.revenue|floatformat:0 }} €</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

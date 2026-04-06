@@ -61,6 +61,12 @@ const routes = [
     component: () => import('@/views/LegalView.vue'),
     meta: { title: 'Mentions légales — Zsdevweb' },
   },
+  {
+    path: '/devis/:uuid/signer',
+    name: 'quote-sign',
+    component: () => import('@/views/QuoteSignView.vue'),
+    meta: { title: 'Signer votre devis — Zsdevweb' },
+  },
 ]
 
 const router = createRouter({

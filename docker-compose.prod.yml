@@ -42,13 +42,48 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: >
-      sh -c "/app/scripts/entrypoint.prod.sh"
+    command: sh -c "/app/scripts/entrypoint.prod.sh"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    volumes:
+      - media_files:/app/media
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: zsdevweb.settings.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             celery -A zsdevweb worker --loglevel=info --concurrency=4"
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: zsdevweb.settings.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             celery -A zsdevweb beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 
   nginx:
     build:
