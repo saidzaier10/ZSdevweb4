@@ -44,8 +44,7 @@ class QuoteAdmin(admin.ModelAdmin):
                        'project_description', 'desired_deadline')
         }),
         ('Client', {
-            'fields': ('client_name', 'client_email', 'client_phone',
-                       'client_company', 'desired_deadline')
+            'fields': ('client_name', 'client_email', 'client_phone', 'client_company')
         }),
         ('Tarification', {
             'fields': (
