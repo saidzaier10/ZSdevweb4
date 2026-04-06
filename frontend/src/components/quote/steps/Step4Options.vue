@@ -17,10 +17,10 @@
       >
         <div class="flex items-center gap-4">
           <div :class="[
-            'w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border-2 transition-colors',
+            'w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 border-2 transition-colors',
             isSelected(option.id) ? 'bg-primary-600 border-primary-600' : 'border-gray-300'
-          ]">
-            <svg v-if="isSelected(option.id)" class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          ]" aria-hidden="true">
+            <svg v-if="isSelected(option.id)" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>

@@ -11,9 +11,25 @@
 
     <div class="max-w-5xl mx-auto px-4 py-8">
 
-      <!-- Loading -->
-      <div v-if="loading" class="flex justify-center py-16">
-        <LoadingSpinner />
+      <!-- Skeleton loading -->
+      <div v-if="loading" class="grid gap-4 md:grid-cols-2" aria-label="Chargement des projets" aria-busy="true">
+        <div v-for="i in 4" :key="i" class="card space-y-4">
+          <div class="flex items-start justify-between">
+            <div class="space-y-2 flex-1">
+              <SkeletonLoader height="h-5" width="w-40" />
+              <SkeletonLoader height="h-3" width="w-28" />
+            </div>
+            <SkeletonLoader height="h-5" width="w-20" rounded="rounded-full" />
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between">
+              <SkeletonLoader height="h-3" width="w-20" />
+              <SkeletonLoader height="h-3" width="w-10" />
+            </div>
+            <SkeletonLoader height="h-2" rounded="rounded-full" />
+          </div>
+          <SkeletonLoader height="h-4" width="w-48" />
+        </div>
       </div>
 
       <!-- Non connecté -->
@@ -92,8 +108,8 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { clientApi } from '@/api/client.js'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const authStore = useAuthStore()
 const projects = ref([])
