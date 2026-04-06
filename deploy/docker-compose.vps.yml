@@ -1,0 +1,143 @@
+version: '3.9'
+
+# ============================================================
+# Stack applicative Zsdevweb sur VPS avec Traefik
+#
+# Prérequis :
+#   - Traefik déployé via docker-compose.traefik.yml
+#   - Réseau traefik-public créé : docker network create traefik-public
+#   - Fichier .env rempli
+#
+# Usage :
+#   docker-compose -f docker-compose.vps.yml up -d
+# ============================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  backend:
+    image: ${DOCKER_USERNAME}/zsdevweb-backend:latest
+    restart: always
+    volumes:
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: zsdevweb.settings.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: sh -c "/app/scripts/entrypoint.prod.sh"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - internal
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      # Route API
+      - traefik.http.routers.zsdevweb-api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api/`, `/admin/`, `/static/`, `/media/`)
+      - traefik.http.routers.zsdevweb-api.entrypoints=websecure
+      - traefik.http.routers.zsdevweb-api.tls.certresolver=letsencrypt
+      - traefik.http.services.zsdevweb-api.loadbalancer.server.port=8000
+
+  celery:
+    image: ${DOCKER_USERNAME}/zsdevweb-backend:latest
+    restart: always
+    volumes:
+      - media_files:/app/media
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: zsdevweb.settings.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             celery -A zsdevweb worker --loglevel=info --concurrency=4"
+    networks:
+      - internal
+
+  celery-beat:
+    image: ${DOCKER_USERNAME}/zsdevweb-backend:latest
+    restart: always
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: zsdevweb.settings.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             celery -A zsdevweb beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    networks:
+      - internal
+
+  frontend:
+    image: ${DOCKER_USERNAME}/zsdevweb-frontend:latest
+    restart: always
+    networks:
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      # Route frontend (SPA — tout le reste)
+      - traefik.http.routers.zsdevweb-frontend.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.zsdevweb-frontend.entrypoints=websecure
+      - traefik.http.routers.zsdevweb-frontend.tls.certresolver=letsencrypt
+      - traefik.http.services.zsdevweb-frontend.loadbalancer.server.port=80
+      # Priorité plus basse que l'API
+      - traefik.http.routers.zsdevweb-frontend.priority=1
+      - traefik.http.routers.zsdevweb-api.priority=10
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_files:
+  static_files:
+
+networks:
+  internal:
+    driver: bridge
+  traefik-public:
+    external: true

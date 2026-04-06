@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/v1/portfolio/', include('portfolio.urls')),
     path('api/v1/marketing/', include('marketing.urls')),
     path('api/v1/company/', include('company.urls')),
+    path('api/v1/client/', include('client_portal.urls')),
 ]
 
 if settings.DEBUG:

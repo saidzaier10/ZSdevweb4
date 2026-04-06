@@ -67,6 +67,18 @@ const routes = [
     component: () => import('@/views/QuoteSignView.vue'),
     meta: { title: 'Signer votre devis — Zsdevweb' },
   },
+  {
+    path: '/espace-client',
+    name: 'client-portal',
+    component: () => import('@/views/ClientPortalView.vue'),
+    meta: { title: 'Espace client — Zsdevweb', requiresAuth: true },
+  },
+  {
+    path: '/espace-client/projets/:uuid',
+    name: 'client-project',
+    component: () => import('@/views/ClientProjectView.vue'),
+    meta: { title: 'Mon projet — Zsdevweb', requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
@@ -77,6 +89,15 @@ const router = createRouter({
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0, behavior: 'smooth' }
   },
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access_token')
+  if (to.meta.requiresAuth && !token) {
+    next({ name: 'home' })
+  } else {
+    next()
+  }
 })
 
 router.afterEach((to) => {

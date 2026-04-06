@@ -1,0 +1,71 @@
+version: '3.9'
+
+# ============================================================
+# Stack Traefik — reverse proxy + TLS automatique Let's Encrypt
+# À déployer UNE SEULE FOIS sur le VPS, indépendamment des apps.
+#
+# Usage :
+#   docker network create traefik-public
+#   docker-compose -f docker-compose.traefik.yml up -d
+# ============================================================
+
+services:
+  traefik:
+    image: traefik:v3.0
+    restart: always
+    command:
+      # API et dashboard (protégé par auth)
+      - --api.dashboard=true
+      - --api.insecure=false
+
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=traefik-public
+
+      # Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+
+      # Redirect HTTP → HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+
+      # Let's Encrypt
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+
+      # Logs
+      - --log.level=INFO
+      - --accesslog=true
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+
+    networks:
+      - traefik-public
+
+    labels:
+      - traefik.enable=true
+      # Dashboard Traefik (accès sur traefik.zsdevweb.fr)
+      - traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik-dashboard.entrypoints=websecure
+      - traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+      - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth
+      # Basic auth pour le dashboard (générer avec: htpasswd -nb admin password)
+      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}
+
+volumes:
+  letsencrypt:
+
+networks:
+  traefik-public:
+    external: true
