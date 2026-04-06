@@ -11,7 +11,7 @@
         </RouterLink>
 
         <!-- Desktop nav -->
-        <div class="hidden md:flex items-center gap-1">
+        <div class="hidden md:flex items-center gap-1" role="navigation" aria-label="Navigation principale">
           <RouterLink
             v-for="link in navLinks"
             :key="link.to"
@@ -37,9 +37,11 @@
         <button
           @click="uiStore.toggleMobileMenu()"
           class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          aria-label="Menu"
+          :aria-label="uiStore.mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
+          :aria-expanded="uiStore.mobileMenuOpen"
+          aria-controls="mobile-menu"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path v-if="!uiStore.mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -55,7 +57,7 @@
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-2"
       >
-        <div v-if="uiStore.mobileMenuOpen" class="md:hidden py-4 border-t border-gray-100">
+        <div v-if="uiStore.mobileMenuOpen" id="mobile-menu" class="md:hidden py-4 border-t border-gray-100" role="navigation" aria-label="Menu mobile">
           <div class="flex flex-col gap-1">
             <RouterLink
               v-for="link in navLinks"
@@ -82,9 +84,16 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { useUIStore } from '@/stores/ui.js'
 
 const uiStore = useUIStore()
+const router = useRouter()
+
+// Ferme le menu mobile à chaque changement de route
+router.afterEach(() => {
+  uiStore.closeMobileMenu()
+})
 
 const navLinks = [
   { to: '/services', label: 'Services' },

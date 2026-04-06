@@ -51,8 +51,10 @@
 </template>
 
 <script setup>
+import { onBeforeRouteLeave } from 'vue-router'
 import { useQuoteStore } from '@/stores/quote.js'
 import QuoteWizard from '@/components/quote/QuoteWizard.vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 const quoteStore = useQuoteStore()
 
@@ -60,9 +62,11 @@ function onSubmitted(quote) {
   // Le store gère déjà l'état submitted
 }
 
-function formatPrice(value) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value)
-}
+onBeforeRouteLeave(() => {
+  const hasProgress = quoteStore.currentStep > 1 && !quoteStore.submitted
+  if (!hasProgress) return true
+  return window.confirm('Vous avez un devis en cours. Quitter cette page effacera votre progression. Continuer ?')
+})
 
 function formatDate(dateStr) {
   if (!dateStr) return ''

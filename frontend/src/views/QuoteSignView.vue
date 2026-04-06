@@ -33,6 +33,9 @@
 
       <!-- Formulaire de signature -->
       <div v-else-if="quoteInfo && !signed && !rejected">
+        <!-- Breadcrumb -->
+        <Breadcrumb :crumbs="[{ label: 'Accueil', to: '/' }, { label: 'Signature du devis' }]" />
+
         <!-- En-tête -->
         <div class="text-center mb-8">
           <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -172,6 +175,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api/axios.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 const route = useRoute()
 const uuid = route.params.uuid
@@ -237,11 +242,7 @@ async function sign(action) {
   }
 }
 
-function formatPrice(value) {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
-  }).format(value)
-}
+
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'

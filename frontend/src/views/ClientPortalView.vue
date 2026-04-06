@@ -55,9 +55,7 @@
                 <h3 class="font-bold text-gray-900 text-lg">{{ project.title }}</h3>
                 <p class="text-sm text-gray-400 mt-0.5">Mis à jour {{ formatDate(project.updated_at) }}</p>
               </div>
-              <span :class="statusClass(project.status)" class="badge">
-                {{ project.status_display }}
-              </span>
+              <StatusBadge :status="project.status" :label="project.status_display" :color-map="PROJECT_STATUS_COLORS" />
             </div>
 
             <!-- Barre de progression -->
@@ -95,6 +93,7 @@ import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { clientApi } from '@/api/client.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
 
 const authStore = useAuthStore()
 const projects = ref([])
@@ -111,19 +110,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-const STATUS_COLORS = {
-  briefing:    'bg-gray-100 text-gray-600',
-  design:      'bg-purple-100 text-purple-700',
-  development: 'bg-blue-100 text-blue-700',
-  review:      'bg-amber-100 text-amber-700',
-  delivered:   'bg-green-100 text-green-700',
-  maintenance: 'bg-cyan-100 text-cyan-700',
-}
-
-function statusClass(status) {
-  return STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-600'
-}
 
 function progressColor(pct) {
   if (pct >= 80) return 'bg-green-500'
