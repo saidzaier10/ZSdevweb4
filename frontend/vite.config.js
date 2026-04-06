@@ -14,7 +14,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://backend:8000',
+        // En Docker, le backend est accessible via le nom du service, pas localhost
+        target: process.env.VITE_BACKEND_INTERNAL_URL || 'http://backend:8000',
         changeOrigin: true,
       },
     },
