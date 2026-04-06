@@ -1,72 +1,61 @@
 /**
- * usePricing — Calcul de prix en temps réel (JS pur, sans API).
- * Miroir client-side de PricingService Python.
+ * usePricing — Prix en temps réel via l'API /price-preview/.
+ *
+ * ARCHITECTURE: Le calcul est fait EXCLUSIVEMENT côté backend (Python/Decimal).
+ * Ce composable appelle l'endpoint avec debounce 300ms.
+ * Avantage: une seule logique de calcul, zéro risque de divergence float/Decimal.
  */
-import { computed } from 'vue'
+import { ref, watch } from 'vue'
+import { quotesApi } from '@/api/quotes.js'
 import { useQuoteStore } from '@/stores/quote.js'
-import { useCatalogStore } from '@/stores/catalog.js'
 import { formatPrice } from '@/utils/formatters.js'
 
 export function usePricing() {
   const quoteStore = useQuoteStore()
-  const catalogStore = useCatalogStore()
+  const pricing = ref(null)
+  const loading = ref(false)
+  let debounceTimer = null
 
-  const VAT_RATE = 20
-
-  function round2(n) {
-    return Math.round(n * 100) / 100
-  }
-
-  const pricing = computed(() => {
+  async function fetchPreview() {
     const { projectTypeId, designOptionId, complexityId, optionIds } = quoteStore.formData
 
-    // 1. Prix de base
-    const projectType = catalogStore.getProjectTypeById(projectTypeId)
-    if (!projectType) return null
-
-    const basePrice = parseFloat(projectType.base_price)
-
-    // 2. Supplément design
-    const designOption = catalogStore.getDesignOptionById(designOptionId)
-    const designSupplement = designOption ? parseFloat(designOption.price_supplement) : 0
-
-    const afterDesign = basePrice + designSupplement
-
-    // 3. Multiplicateur complexité
-    const complexity = catalogStore.getComplexityById(complexityId)
-    const complexityFactor = complexity ? parseFloat(complexity.multiplier) : 1
-    const afterComplexity = round2(afterDesign * complexityFactor)
-
-    // 4. Options supplémentaires
-    const options = catalogStore.getOptionsByIds(optionIds)
-    const optionsTotal = options.reduce((sum, o) => sum + parseFloat(o.price), 0)
-
-    // 5. Sous-total
-    const subtotalHt = round2(afterComplexity + optionsTotal)
-
-    // 6. TVA
-    const vatAmount = round2(subtotalHt * VAT_RATE / 100)
-    const totalTtc = round2(subtotalHt + vatAmount)
-
-    // 7. Plan de paiement
-    const i1 = round2(totalTtc * 0.30)
-    const i2 = round2(totalTtc * 0.40)
-    const i3 = round2(totalTtc - i1 - i2)
-
-    return {
-      base_price: basePrice,
-      design_supplement: designSupplement,
-      complexity_factor: complexityFactor,
-      options_total: optionsTotal,
-      subtotal_ht: subtotalHt,
-      vat_rate: VAT_RATE,
-      vat_amount: vatAmount,
-      total_ttc: totalTtc,
-      installment_1: i1,
-      installment_2: i2,
-      installment_3: i3,
+    if (!projectTypeId) {
+      pricing.value = null
+      return
     }
-  })
 
-  return { pricing, formatPrice }
+    loading.value = true
+    try {
+      const { data } = await quotesApi.pricePreview({
+        project_type_id: projectTypeId,
+        design_option_id: designOptionId || null,
+        complexity_id: complexityId || null,
+        option_ids: optionIds || [],
+      })
+      pricing.value = data
+    } catch (e) {
+      console.warn('Price preview failed (non-blocking):', e.message)
+      pricing.value = null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Déclenche un appel debouncé à chaque changement des sélections
+  watch(
+    () => [
+      quoteStore.formData.projectTypeId,
+      quoteStore.formData.designOptionId,
+      quoteStore.formData.complexityId,
+      // JSON.stringify pour détecter les changements dans le tableau
+      JSON.stringify(quoteStore.formData.optionIds),
+    ],
+    () => {
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(fetchPreview, 300)
+    },
+    { immediate: true },
+  )
+
+  return { pricing, loading, formatPrice }
 }

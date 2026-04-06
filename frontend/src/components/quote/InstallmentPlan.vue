@@ -24,6 +24,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 const props = defineProps({
   pricing: { type: Object, required: true },
@@ -36,12 +37,4 @@ const installments = computed(() => [
   { label: 'Livraison (30%)', amount: props.pricing.installment_3 },
 ])
 
-function formatPrice(value) {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
 </script>

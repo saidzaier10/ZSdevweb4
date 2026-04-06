@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { quotesApi } from '@/api/quotes.js'
 
+// NOTE ARCHITECTURE: Le pricing n'est PAS dans ce store.
+// usePricing() composable gère les prix via l'API /price-preview/.
+// Ce store gère uniquement l'état du wizard (steps + formData + submit).
+
 export const useQuoteStore = defineStore('quote', () => {
   const TOTAL_STEPS = 6
 
@@ -36,23 +40,6 @@ export const useQuoteStore = defineStore('quote', () => {
     // Étape 6 — Description / Délai
     projectDescription: '',
     desiredDeadline: null,
-  })
-
-  // Prix calculés localement (mis à jour par usePricing)
-  const pricing = ref({
-    base_price: 0,
-    design_supplement: 0,
-    complexity_factor: 1,
-    options_total: 0,
-    subtotal_ht: 0,
-    discount_percent: 0,
-    discount_amount: 0,
-    vat_rate: 20,
-    vat_amount: 0,
-    total_ttc: 0,
-    installment_1: 0,
-    installment_2: 0,
-    installment_3: 0,
   })
 
   const progress = computed(() => Math.round((currentStep.value / TOTAL_STEPS) * 100))
@@ -102,10 +89,6 @@ export const useQuoteStore = defineStore('quote', () => {
     } else {
       formData.value.optionIds.splice(idx, 1)
     }
-  }
-
-  function updatePricing(newPricing) {
-    Object.assign(pricing.value, newPricing)
   }
 
   async function submitQuote() {
@@ -160,18 +143,12 @@ export const useQuoteStore = defineStore('quote', () => {
       projectDescription: '',
       desiredDeadline: null,
     }
-    pricing.value = {
-      base_price: 0, design_supplement: 0, complexity_factor: 1,
-      options_total: 0, subtotal_ht: 0, discount_percent: 0,
-      discount_amount: 0, vat_rate: 20, vat_amount: 0,
-      total_ttc: 0, installment_1: 0, installment_2: 0, installment_3: 0,
-    }
   }
 
   return {
-    currentStep, formData, pricing, progress, submitting, submitted,
+    currentStep, formData, progress, submitting, submitted,
     submittedQuote, error, leadId, canGoNext, isLastStep,
     nextStep, prevStep, goToStep, updateFormData, toggleOption,
-    updatePricing, submitQuote, reset, TOTAL_STEPS,
+    submitQuote, reset, TOTAL_STEPS,
   }
 })

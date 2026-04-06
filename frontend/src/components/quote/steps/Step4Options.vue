@@ -45,6 +45,7 @@
 <script setup>
 import { useQuoteStore } from '@/stores/quote.js'
 import { useCatalogStore } from '@/stores/catalog.js'
+import { formatPrice } from '@/utils/formatters.js'
 
 defineEmits(['next'])
 const quoteStore = useQuoteStore()
@@ -52,9 +53,5 @@ const catalogStore = useCatalogStore()
 
 function isSelected(id) {
   return quoteStore.formData.optionIds.includes(id)
-}
-
-function formatPrice(price) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price)
 }
 </script>

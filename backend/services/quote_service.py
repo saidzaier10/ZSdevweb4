@@ -6,7 +6,6 @@ import secrets
 from decimal import Decimal
 
 from .pricing_service import PricingService
-from .lead_service import LeadService
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,6 @@ class QuoteService:
 
     def __init__(self):
         self.pricing_service = PricingService()
-        self.lead_service = LeadService()
 
     def create_from_wizard(self, validated_data: dict):
         """
@@ -80,20 +78,7 @@ class QuoteService:
         if options:
             quote.options.set(options)
 
-        # 4. Capture du lead
-        try:
-            lead, _ = self.lead_service.capture(
-                email=validated_data['client_email'],
-                source='quote_wizard',
-                name=validated_data['client_name'],
-                phone=validated_data.get('client_phone', ''),
-                company=validated_data.get('client_company', ''),
-                project_type_id=project_type.pk,
-            )
-            quote.lead = lead
-            quote.save(update_fields=['lead'])
-        except Exception as e:
-            logger.warning(f'Lead capture failed for quote {quote.quote_number} (non-blocking): {e}')
+        # Lead capture is handled by post_save signal in quotes/signals.py (SRP)
 
         return quote
 
