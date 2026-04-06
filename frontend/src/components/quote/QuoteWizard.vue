@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-4xl mx-auto pb-24 lg:pb-0">
     <!-- En-tête du wizard -->
     <div class="mb-8">
       <div class="flex items-center justify-between mb-3">
@@ -56,11 +56,14 @@
         </div>
       </div>
 
-      <!-- Sidebar prix en temps réel -->
+      <!-- Sidebar prix en temps réel (desktop) -->
       <div class="hidden lg:block">
         <PricingDisplay />
       </div>
     </div>
+
+    <!-- Barre de prix sticky (mobile/tablet) -->
+    <MobilePricingBar />
   </div>
 </template>
 
@@ -71,6 +74,7 @@ import { useCatalogStore } from '@/stores/catalog.js'
 import ProgressBar from '@/components/ui/ProgressBar.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import PricingDisplay from './PricingDisplay.vue'
+import MobilePricingBar from './MobilePricingBar.vue'
 import Step1ProjectType from './steps/Step1ProjectType.vue'
 import Step2Design from './steps/Step2Design.vue'
 import Step3Complexity from './steps/Step3Complexity.vue'

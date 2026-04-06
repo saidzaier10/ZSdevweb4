@@ -11,6 +11,7 @@
           placeholder="Jean Dupont"
           required
           :error="errors.clientName"
+          @blur="validateField('clientName')"
         />
         <BaseInput
           v-model="form.clientEmail"
@@ -19,6 +20,7 @@
           placeholder="jean@exemple.fr"
           required
           :error="errors.clientEmail"
+          @blur="validateField('clientEmail')"
         />
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -39,11 +41,11 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Budget estimé</label>
         <select v-model="form.budgetRange" class="input-field">
           <option value="">Je ne sais pas encore</option>
-          <option value="< 1000">Moins de 1 000€</option>
-          <option value="1000-3000">1 000€ — 3 000€</option>
-          <option value="3000-6000">3 000€ — 6 000€</option>
-          <option value="6000-15000">6 000€ — 15 000€</option>
-          <option value="> 15000">Plus de 15 000€</option>
+          <option value="< 1000">Moins de 1 000 €</option>
+          <option value="1000-3000">1 000 € — 3 000 €</option>
+          <option value="3000-6000">3 000 € — 6 000 €</option>
+          <option value="6000-15000">6 000 € — 15 000 €</option>
+          <option value="> 15000">Plus de 15 000 €</option>
         </select>
       </div>
     </form>
@@ -62,7 +64,7 @@
 </template>
 
 <script setup>
-import { reactive, computed, watch } from 'vue'
+import { reactive, watch } from 'vue'
 import { useQuoteStore } from '@/stores/quote.js'
 import { useLeadCapture } from '@/composables/useLeadCapture.js'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -85,11 +87,25 @@ const errors = reactive({
   clientEmail: '',
 })
 
+function validateField(field) {
+  if (field === 'clientName') {
+    errors.clientName = form.clientName.trim() ? '' : 'Le prénom et nom sont requis.'
+  }
+  if (field === 'clientEmail') {
+    if (!form.clientEmail.trim()) {
+      errors.clientEmail = 'L\'email est requis.'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.clientEmail)) {
+      errors.clientEmail = 'Adresse email invalide.'
+    } else {
+      errors.clientEmail = ''
+    }
+  }
+}
+
 // Sync vers le store à chaque changement + capture lead dès que l'email est valide
 watch(form, (val) => {
   quoteStore.updateFormData({ ...val })
-  // Capture anticipée dès que nom + email sont renseignés
-  if (val.clientEmail && val.clientName) {
+  if (val.clientEmail && val.clientName && !errors.clientEmail) {
     captureFromStep5()
   }
 }, { deep: true })

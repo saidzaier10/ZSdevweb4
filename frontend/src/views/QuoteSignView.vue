@@ -103,6 +103,14 @@
             Je souhaite refuser ce devis
           </button>
 
+          <!-- Erreur de signature -->
+          <div v-if="signError" class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm" role="alert">
+            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ signError }}
+          </div>
+
           <!-- Formulaire de refus -->
           <div v-if="showRejectForm" class="card border-red-100 bg-red-50">
             <p class="text-sm font-medium text-red-700 mb-3">Motif du refus (optionnel)</p>
@@ -180,6 +188,7 @@ const showRejectForm = ref(false)
 const submitting = ref(false)
 const signed = ref(false)
 const rejected = ref(false)
+const signError = ref('')
 
 onMounted(async () => {
   try {
@@ -222,7 +231,7 @@ async function sign(action) {
       rejected.value = true
     }
   } catch (e) {
-    alert(e.response?.data?.detail || 'Une erreur est survenue.')
+    signError.value = e.response?.data?.detail || 'Une erreur est survenue. Veuillez réessayer.'
   } finally {
     submitting.value = false
   }
