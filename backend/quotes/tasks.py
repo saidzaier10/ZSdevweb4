@@ -10,7 +10,7 @@ Planning recommandé (à configurer dans l'admin Django > Periodic Tasks) :
 import logging
 from celery import shared_task
 from django.utils import timezone
-from django.utils.timedelta import timedelta
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
