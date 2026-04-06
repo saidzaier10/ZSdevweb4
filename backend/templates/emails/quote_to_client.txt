@@ -1,0 +1,44 @@
+Votre devis {{ quote.quote_number }} — {{ company_name }}
+=======================================================
+
+Bonjour {{ quote.client_name }},
+
+Merci de votre confiance. Voici votre devis personnalisé{% if quote.project_type %} pour votre projet {{ quote.project_type.name }}{% endif %}.
+
+TOTAL TTC : {{ quote.total_ttc|floatformat:0 }} €
+(TVA 20% incluse)
+
+---
+DÉTAIL DES PRIX
+---
+Prix de base           : {{ quote.base_price|floatformat:0 }} €
+{% if quote.design_supplement %}Supplément design      : + {{ quote.design_supplement|floatformat:0 }} €
+{% endif %}{% if quote.options_total %}Options                : + {{ quote.options_total|floatformat:0 }} €
+{% endif %}{% if quote.discount_amount %}Remise ({{ quote.discount_percent }}%)        : - {{ quote.discount_amount|floatformat:0 }} €
+{% endif %}Sous-total HT          : {{ quote.subtotal_ht|floatformat:0 }} €
+TVA 20%                : {{ quote.vat_amount|floatformat:0 }} €
+Total TTC              : {{ quote.total_ttc|floatformat:0 }} €
+
+{% if quote.project_type %}Délai estimé : {{ quote.project_type.min_days }}–{{ quote.project_type.max_days }} jours ouvrés
+{% endif %}
+---
+PLAN DE PAIEMENT EN 3 FOIS
+---
+1. Acompte à la signature (30%) : {{ quote.installment_1|floatformat:0 }} €
+2. Mi-projet (40%)              : {{ quote.installment_2|floatformat:0 }} €
+3. Livraison finale (30%)       : {{ quote.installment_3|floatformat:0 }} €
+
+---
+
+Ce devis est valable jusqu'au {{ quote.valid_until|date:"d/m/Y" }}.
+
+Pour consulter et accepter votre devis en ligne :
+{{ view_url }}
+
+Des questions ? Répondez à cet email ou contactez-moi via https://zsdevweb.fr/contact
+
+--
+{{ company_name }} · Développeur web freelance
+https://zsdevweb.fr · contact@zsdevweb.fr
+
+Ce devis a été généré automatiquement. Il n'a pas de valeur contractuelle tant qu'il n'a pas été accepté.

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Votre devis {{ quote.quote_number }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #1e293b; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); padding: 40px 40px 32px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0 0 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .header p { color: #94a3b8; margin: 0; font-size: 15px; }
+    .badge { display: inline-block; background: #3b82f6; color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 16px; }
+    .body { padding: 40px; }
+    .greeting { font-size: 16px; margin-bottom: 24px; color: #374151; }
+    .pricing-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 28px; margin: 28px 0; text-align: center; }
+    .pricing-card .total { font-size: 42px; font-weight: 800; color: #0369a1; line-height: 1; margin-bottom: 6px; }
+    .pricing-card .label { font-size: 14px; color: #64748b; }
+    .breakdown { background: #f8fafc; border-radius: 8px; padding: 20px 24px; margin: 20px 0; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    .breakdown-row:last-child { border-bottom: none; font-weight: 700; font-size: 15px; color: #1e293b; padding-top: 12px; }
+    .installments { margin: 28px 0; }
+    .installments h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+    .installment-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+    .installment-row.i1 { background: #dbeafe; color: #1d4ed8; }
+    .installment-row.i2 { background: #dcfce7; color: #15803d; }
+    .installment-row.i3 { background: #fef3c7; color: #b45309; }
+    .installment-row .amount { font-weight: 700; font-size: 16px; }
+    .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .details-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+    .details-table td:last-child { text-align: right; font-weight: 600; color: #1e293b; }
+    .cta-block { text-align: center; margin: 36px 0 24px; }
+    .btn { display: inline-block; background: #2563eb; color: #ffffff !important; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
+    .validity { text-align: center; font-size: 13px; color: #94a3b8; margin-top: 8px; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+    .footer a { color: #3b82f6; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- En-tête -->
+    <div class="header">
+      <h1>{{ company_name }}</h1>
+      <p>Développement web sur mesure</p>
+      <div class="badge">Devis {{ quote.quote_number }}</div>
+    </div>
+
+    <!-- Corps -->
+    <div class="body">
+      <p class="greeting">Bonjour <strong>{{ quote.client_name }}</strong>,</p>
+      <p style="font-size:15px; color:#475569; line-height:1.7;">
+        Merci de votre confiance. Voici votre devis personnalisé pour votre projet
+        {% if quote.project_type %}<strong>{{ quote.project_type.name }}</strong>{% endif %}.
+        Ce devis est valable jusqu'au <strong>{{ quote.valid_until|date:"d/m/Y" }}</strong>.
+      </p>
+
+      <!-- Prix total -->
+      <div class="pricing-card">
+        <div class="total">{{ quote.total_ttc|floatformat:0 }} €</div>
+        <div class="label">Total TTC (TVA 20% incluse)</div>
+      </div>
+
+      <!-- Détail des prix -->
+      <div class="breakdown">
+        <div class="breakdown-row">
+          <span>Prix de base</span>
+          <span>{{ quote.base_price|floatformat:0 }} €</span>
+        </div>
+        {% if quote.design_supplement %}
+        <div class="breakdown-row">
+          <span>Supplément design</span>
+          <span>+ {{ quote.design_supplement|floatformat:0 }} €</span>
+        </div>
+        {% endif %}
+        {% if quote.options_total %}
+        <div class="breakdown-row">
+          <span>Options</span>
+          <span>+ {{ quote.options_total|floatformat:0 }} €</span>
+        </div>
+        {% endif %}
+        {% if quote.discount_amount %}
+        <div class="breakdown-row" style="color:#16a34a;">
+          <span>Remise ({{ quote.discount_percent }}%)</span>
+          <span>- {{ quote.discount_amount|floatformat:0 }} €</span>
+        </div>
+        {% endif %}
+        <div class="breakdown-row">
+          <span>Sous-total HT</span>
+          <span>{{ quote.subtotal_ht|floatformat:0 }} €</span>
+        </div>
+        <div class="breakdown-row">
+          <span>TVA 20%</span>
+          <span>{{ quote.vat_amount|floatformat:0 }} €</span>
+        </div>
+        <div class="breakdown-row">
+          <span>Total TTC</span>
+          <span>{{ quote.total_ttc|floatformat:0 }} €</span>
+        </div>
+      </div>
+
+      {% if quote.project_type %}
+      <p style="font-size:14px; color:#64748b; text-align:center;">
+        Délai estimé : <strong>{{ quote.project_type.min_days }}–{{ quote.project_type.max_days }} jours ouvrés</strong>
+      </p>
+      {% endif %}
+
+      <!-- Plan de paiement -->
+      <div class="installments">
+        <h3>Plan de paiement en 3 fois</h3>
+        <div class="installment-row i1">
+          <span>Acompte à la signature (30%)</span>
+          <span class="amount">{{ quote.installment_1|floatformat:0 }} €</span>
+        </div>
+        <div class="installment-row i2">
+          <span>Mi-projet (40%)</span>
+          <span class="amount">{{ quote.installment_2|floatformat:0 }} €</span>
+        </div>
+        <div class="installment-row i3">
+          <span>Livraison finale (30%)</span>
+          <span class="amount">{{ quote.installment_3|floatformat:0 }} €</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-block">
+        <a href="{{ view_url }}" class="btn">Consulter et accepter mon devis →</a>
+        <p class="validity">Offre valable jusqu'au {{ quote.valid_until|date:"d/m/Y" }}</p>
+      </div>
+
+      <p style="font-size:14px; color:#94a3b8; line-height:1.7; border-top:1px solid #e2e8f0; padding-top:20px;">
+        Des questions ? Répondez directement à cet email ou contactez-moi sur
+        <a href="https://zsdevweb.fr/contact" style="color:#3b82f6;">zsdevweb.fr/contact</a>.
+      </p>
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+      <p>
+        <strong>{{ company_name }}</strong> · Développeur web freelance<br>
+        <a href="https://zsdevweb.fr">zsdevweb.fr</a> · contact@zsdevweb.fr
+      </p>
+      <p style="margin-top:12px; font-size:12px;">
+        Ce devis a été généré automatiquement. Il n'a pas de valeur contractuelle tant qu'il n'a pas été accepté.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+"""
+QuoteService — Orchestration de la création et gestion des devis.
+"""
+import secrets
+from decimal import Decimal
+
+from .pricing_service import PricingService
+from .lead_service import LeadService
+
+
+class QuoteService:
+
+    def __init__(self):
+        self.pricing_service = PricingService()
+        self.lead_service = LeadService()
+
+    def create_from_wizard(self, validated_data: dict):
+        """
+        Crée un devis complet depuis les données du wizard.
+
+        1. Charge les FK depuis la DB
+        2. Calcule les prix via PricingService
+        3. Crée le Quote
+        4. Crée/met à jour le Lead
+        5. Retourne le quote
+
+        Args:
+            validated_data: dict validé par QuoteCreateSerializer
+
+        Returns:
+            Quote instance
+        """
+        from quotes.models import Quote
+        from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
+
+        # 1. Charger les FK
+        project_type = ProjectType.objects.get(pk=validated_data['project_type_id'])
+        design_option = None
+        if validated_data.get('design_option_id'):
+            design_option = DesignOption.objects.get(pk=validated_data['design_option_id'])
+        complexity = None
+        if validated_data.get('complexity_id'):
+            complexity = ComplexityLevel.objects.get(pk=validated_data['complexity_id'])
+        option_ids = validated_data.get('option_ids', [])
+        options = list(SupplementaryOption.objects.filter(pk__in=option_ids)) if option_ids else []
+
+        # 2. Calcul des prix
+        from company.models import CompanySettings
+        settings = CompanySettings.get()
+        vat_rate = Decimal(str(settings.vat_rate))
+
+        pricing = PricingService.full_breakdown(
+            project_type=project_type,
+            design_option=design_option,
+            complexity=complexity,
+            options=options,
+            discount_percent=Decimal(str(validated_data.get('discount_percent', 0))),
+            vat_rate=vat_rate,
+        )
+
+        # 3. Créer le Quote
+        quote = Quote(
+            project_type=project_type,
+            design_option=design_option,
+            complexity=complexity,
+            client_name=validated_data['client_name'],
+            client_email=validated_data['client_email'],
+            client_phone=validated_data.get('client_phone', ''),
+            client_company=validated_data.get('client_company', ''),
+            project_description=validated_data.get('project_description', ''),
+            desired_deadline=validated_data.get('desired_deadline'),
+            signature_token=secrets.token_urlsafe(32),
+            **pricing,
+        )
+        quote.save()
+
+        if options:
+            quote.options.set(options)
+
+        # 4. Capture du lead
+        try:
+            lead, _ = self.lead_service.capture(
+                email=validated_data['client_email'],
+                source='quote_wizard',
+                name=validated_data['client_name'],
+                phone=validated_data.get('client_phone', ''),
+                company=validated_data.get('client_company', ''),
+                project_type_id=project_type.pk,
+            )
+            quote.lead = lead
+            quote.save(update_fields=['lead'])
+        except Exception:
+            pass  # La capture de lead ne doit jamais faire échouer la création du devis
+
+        return quote
+
+    def calculate_price_preview(self, data: dict) -> dict:
+        """
+        Calcul de prix sans persistance en DB.
+        Utilisé pour /price-preview/ endpoint.
+        """
+        from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
+
+        project_type = ProjectType.objects.get(pk=data['project_type_id'])
+        design_option = DesignOption.objects.get(pk=data['design_option_id']) if data.get('design_option_id') else None
+        complexity = ComplexityLevel.objects.get(pk=data['complexity_id']) if data.get('complexity_id') else None
+        option_ids = data.get('option_ids', [])
+        options = list(SupplementaryOption.objects.filter(pk__in=option_ids)) if option_ids else []
+
+        from company.models import CompanySettings
+        settings = CompanySettings.get()
+
+        return PricingService.full_breakdown(
+            project_type=project_type,
+            design_option=design_option,
+            complexity=complexity,
+            options=options,
+            discount_percent=Decimal('0'),
+            vat_rate=Decimal(str(settings.vat_rate)),
+        )

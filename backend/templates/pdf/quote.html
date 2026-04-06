@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Devis {{ quote.quote_number }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 18mm 24mm 18mm;
+      @bottom-center {
+        content: "Page " counter(page) " / " counter(pages);
+        font-size: 10px;
+        color: #94a3b8;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #0f172a;
+    }
+    .company-block h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .company-block p {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+    .quote-meta {
+      text-align: right;
+    }
+    .quote-meta .quote-number {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .quote-meta .meta-row {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .quote-meta .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    /* ---- PARTIES (émetteur / destinataire) ---- */
+    .parties {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 32px;
+    }
+    .party-block {
+      flex: 1;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .party-block h3 {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+    .party-block p {
+      font-size: 11px;
+      color: #374151;
+      line-height: 1.7;
+    }
+    .party-block strong {
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    /* ---- PROJET ---- */
+    .project-section {
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .project-info {
+      display: flex;
+      gap: 24px;
+    }
+    .project-info-item {
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 10px 14px;
+      flex: 1;
+    }
+    .project-info-item .label {
+      font-size: 9px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .project-info-item .value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    /* ---- TABLEAU DE PRIX ---- */
+    .pricing-section {
+      margin-bottom: 28px;
+    }
+    table.price-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    table.price-table thead tr {
+      background: #0f172a;
+      color: #ffffff;
+    }
+    table.price-table thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+    table.price-table thead th:last-child { text-align: right; }
+    table.price-table tbody tr {
+      border-bottom: 1px solid #f1f5f9;
+    }
+    table.price-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    table.price-table tbody td {
+      padding: 10px 12px;
+      color: #374151;
+      vertical-align: top;
+    }
+    table.price-table tbody td:last-child {
+      text-align: right;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    table.price-table .discount-row td {
+      color: #16a34a;
+    }
+
+    /* ---- TOTAUX ---- */
+    .totals-block {
+      margin-left: auto;
+      width: 280px;
+      margin-bottom: 32px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 12px;
+      font-size: 11px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
+    }
+    .totals-row.total-ttc {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      border-bottom: none;
+      padding: 12px 14px;
+      margin-top: 4px;
+    }
+
+    /* ---- PLAN DE PAIEMENT ---- */
+    .installments-section {
+      margin-bottom: 32px;
+    }
+    .installments-grid {
+      display: flex;
+      gap: 12px;
+    }
+    .installment-card {
+      flex: 1;
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .installment-card.i1 { background: #dbeafe; }
+    .installment-card.i2 { background: #dcfce7; }
+    .installment-card.i3 { background: #fef3c7; }
+    .installment-card .i-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .installment-card .i-when {
+      font-size: 10px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    .installment-card .i-amount {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .installment-card .i-pct {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* ---- CONDITIONS ---- */
+    .conditions {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 10px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+    .conditions h3 {
+      font-size: 10px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    /* ---- SIGNATURE ---- */
+    .signature-section {
+      display: flex;
+      gap: 40px;
+      margin-top: 32px;
+    }
+    .signature-box {
+      flex: 1;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      min-height: 80px;
+    }
+    .signature-box .sig-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .signature-box .sig-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+    }
+    {% if quote.signed_at %}
+    .signature-box.signed {
+      border-color: #16a34a;
+      border-style: solid;
+      background: #f0fdf4;
+    }
+    {% endif %}
+
+    /* ---- FOOTER ---- */
+    .doc-footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 9px;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- En-tête -->
+  <div class="header">
+    <div class="company-block">
+      <h1>{{ company }}</h1>
+      <p>Développeur web freelance · Vue.js &amp; Django</p>
+      <p>contact@zsdevweb.fr · zsdevweb.fr</p>
+    </div>
+    <div class="quote-meta">
+      <div class="quote-number">{{ quote.quote_number }}</div>
+      <div class="meta-row">Émis le {{ quote.created_at|date:"d/m/Y" }}</div>
+      <div class="meta-row">Valable jusqu'au <strong>{{ quote.valid_until|date:"d/m/Y" }}</strong></div>
+      <div class="status-badge">{{ quote.get_status_display }}</div>
+    </div>
+  </div>
+
+  <!-- Parties -->
+  <div class="parties">
+    <div class="party-block">
+      <h3>Prestataire</h3>
+      <p>
+        <strong>Zsdevweb</strong><br>
+        Développeur freelance indépendant<br>
+        contact@zsdevweb.fr<br>
+        zsdevweb.fr
+      </p>
+    </div>
+    <div class="party-block">
+      <h3>Client</h3>
+      <p>
+        <strong>{{ quote.client_name }}</strong><br>
+        {% if quote.client_company %}{{ quote.client_company }}<br>{% endif %}
+        {{ quote.client_email }}<br>
+        {% if quote.client_phone %}{{ quote.client_phone }}{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- Projet -->
+  <div class="project-section">
+    <div class="section-title">Détails du projet</div>
+    <div class="project-info">
+      {% if quote.project_type %}
+      <div class="project-info-item">
+        <div class="label">Type de projet</div>
+        <div class="value">{{ quote.project_type.name }}</div>
+      </div>
+      {% endif %}
+      {% if quote.complexity %}
+      <div class="project-info-item">
+        <div class="label">Complexité</div>
+        <div class="value">{{ quote.complexity.name }}</div>
+      </div>
+      {% endif %}
+      {% if quote.project_type %}
+      <div class="project-info-item">
+        <div class="label">Délai estimé</div>
+        <div class="value">{{ quote.project_type.min_days }}–{{ quote.project_type.max_days }} jours</div>
+      </div>
+      {% endif %}
+      {% if quote.desired_deadline %}
+      <div class="project-info-item">
+        <div class="label">Date souhaitée</div>
+        <div class="value">{{ quote.desired_deadline|date:"d/m/Y" }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% if quote.project_description %}
+    <p style="margin-top:12px; font-size:11px; color:#475569; line-height:1.7;">{{ quote.project_description }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Tableau de prix -->
+  <div class="pricing-section">
+    <div class="section-title">Détail de la prestation</div>
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th style="width:55%">Prestation</th>
+          <th>Détail</th>
+          <th>Montant HT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>{% if quote.project_type %}{{ quote.project_type.name }}{% else %}Développement web{% endif %}</strong>
+            <br><span style="color:#94a3b8; font-size:10px;">Développement sur mesure</span>
+          </td>
+          <td>Prix de base</td>
+          <td>{{ quote.base_price|floatformat:0 }} €</td>
+        </tr>
+        {% if quote.design_supplement %}
+        <tr>
+          <td>
+            <strong>{% if quote.design_option %}{{ quote.design_option.name }}{% else %}Option design{% endif %}</strong>
+            <br><span style="color:#94a3b8; font-size:10px;">Supplément design premium</span>
+          </td>
+          <td>Supplément</td>
+          <td>+ {{ quote.design_supplement|floatformat:0 }} €</td>
+        </tr>
+        {% endif %}
+        {% if quote.complexity and quote.complexity.multiplier != 1 %}
+        <tr>
+          <td>
+            <strong>Complexité {{ quote.complexity.name }}</strong>
+            <br><span style="color:#94a3b8; font-size:10px;">Facteur de complexité appliqué</span>
+          </td>
+          <td>× {{ quote.complexity_factor }}</td>
+          <td>—</td>
+        </tr>
+        {% endif %}
+        {% for option in options %}
+        <tr>
+          <td>
+            <strong>{{ option.name }}</strong>
+            {% if option.description %}<br><span style="color:#94a3b8; font-size:10px;">{{ option.description }}</span>{% endif %}
+          </td>
+          <td>{% if option.is_recurring %}Mensuel{% else %}Forfait{% endif %}</td>
+          <td>{{ option.price|floatformat:0 }} €</td>
+        </tr>
+        {% endfor %}
+        {% if quote.discount_amount %}
+        <tr class="discount-row">
+          <td><strong>Remise commerciale</strong></td>
+          <td>{{ quote.discount_percent }}%</td>
+          <td>- {{ quote.discount_amount|floatformat:0 }} €</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Totaux -->
+  <div class="totals-block">
+    <div class="totals-row">
+      <span>Sous-total HT</span>
+      <span>{{ quote.subtotal_ht|floatformat:2 }} €</span>
+    </div>
+    <div class="totals-row">
+      <span>TVA 20%</span>
+      <span>{{ quote.vat_amount|floatformat:2 }} €</span>
+    </div>
+    <div class="totals-row total-ttc">
+      <span>Total TTC</span>
+      <span>{{ quote.total_ttc|floatformat:2 }} €</span>
+    </div>
+  </div>
+
+  <!-- Plan de paiement -->
+  <div class="installments-section">
+    <div class="section-title">Plan de paiement en 3 fois</div>
+    <div class="installments-grid">
+      <div class="installment-card i1">
+        <div class="i-label">Versement 1</div>
+        <div class="i-when">À la signature</div>
+        <div class="i-amount">{{ quote.installment_1|floatformat:0 }} €</div>
+        <div class="i-pct">30% du total TTC</div>
+      </div>
+      <div class="installment-card i2">
+        <div class="i-label">Versement 2</div>
+        <div class="i-when">À mi-parcours</div>
+        <div class="i-amount">{{ quote.installment_2|floatformat:0 }} €</div>
+        <div class="i-pct">40% du total TTC</div>
+      </div>
+      <div class="installment-card i3">
+        <div class="i-label">Versement 3</div>
+        <div class="i-when">À la livraison</div>
+        <div class="i-amount">{{ quote.installment_3|floatformat:0 }} €</div>
+        <div class="i-pct">30% du total TTC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conditions -->
+  <div class="conditions">
+    <h3>Conditions générales</h3>
+    Ce devis est valable 30 jours à compter de sa date d'émission. L'acceptation du devis implique l'acceptation des conditions générales de vente disponibles sur zsdevweb.fr/cgv.
+    Le paiement est dû selon le plan ci-dessus. Tout retard de paiement entraîne des pénalités de 3× le taux légal.
+    Les droits de propriété intellectuelle sont transférés au client à réception du solde final.
+    TVA non applicable, article 293B du CGI (si applicable) · SIRET : à compléter.
+  </div>
+
+  <!-- Signature -->
+  <div class="signature-section">
+    <div class="signature-box">
+      <div class="sig-label">Prestataire</div>
+      <div class="sig-name">Zsdevweb</div>
+      <p style="font-size:9px; color:#94a3b8; margin-top:8px;">Lu et approuvé</p>
+    </div>
+    <div class="signature-box {% if quote.signed_at %}signed{% endif %}">
+      <div class="sig-label">Client</div>
+      <div class="sig-name">{{ quote.client_name }}</div>
+      {% if quote.signed_at %}
+      <p style="font-size:9px; color:#16a34a; margin-top:8px;">Signé le {{ quote.signed_at|date:"d/m/Y" }}</p>
+      {% else %}
+      <p style="font-size:9px; color:#94a3b8; margin-top:8px;">Bon pour accord — Date et signature</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pied de document -->
+  <div class="doc-footer">
+    Zsdevweb · Développeur web freelance · contact@zsdevweb.fr · zsdevweb.fr<br>
+    Document généré le {{ quote.created_at|date:"d/m/Y à H:i" }} · Devis {{ quote.quote_number }}
+  </div>
+
+</body>
+</html>
