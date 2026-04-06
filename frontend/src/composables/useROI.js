@@ -5,6 +5,7 @@
  * d'un nouveau site web.
  */
 import { computed, ref } from 'vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 export function useROI() {
   const inputs = ref({
@@ -57,14 +58,7 @@ export function useROI() {
     }
   })
 
-  function formatCurrency(value) {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
-  }
+  const formatCurrency = formatPrice
 
   function updateInput(key, value) {
     inputs.value[key] = parseFloat(value) || 0

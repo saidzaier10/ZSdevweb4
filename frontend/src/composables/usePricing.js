@@ -5,6 +5,7 @@
 import { computed } from 'vue'
 import { useQuoteStore } from '@/stores/quote.js'
 import { useCatalogStore } from '@/stores/catalog.js'
+import { formatPrice } from '@/utils/formatters.js'
 
 export function usePricing() {
   const quoteStore = useQuoteStore()
@@ -66,15 +67,6 @@ export function usePricing() {
       installment_3: i3,
     }
   })
-
-  function formatPrice(value) {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
-  }
 
   return { pricing, formatPrice }
 }

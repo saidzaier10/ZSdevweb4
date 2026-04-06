@@ -1,5 +1,6 @@
 /**
- * useLeadCapture — Capture de lead anticipée à l'étape 5 du wizard.
+ * useLeadCapture — Capture de lead anticipée.
+ * SRP : une seule méthode générique `capture()`, les contextes passent leurs données.
  */
 import { ref } from 'vue'
 import { leadsApi } from '@/api/leads.js'
@@ -12,13 +13,29 @@ export function useLeadCapture() {
 
   let captureTimeout = null
 
+  /**
+   * Méthode générique de capture — tous les contextes l'utilisent.
+   * Non-bloquante : ne lève jamais d'erreur vers l'appelant.
+   */
+  async function capture(payload) {
+    if (!payload.email) return
+    try {
+      const { data } = await leadsApi.capture(payload)
+      return data
+    } catch (err) {
+      console.warn(`Lead capture failed [${payload.source}] (non-blocking):`, err.message)
+    }
+  }
+
+  /**
+   * Capture depuis l'étape 5 du wizard — debouncée 800ms.
+   */
   async function captureFromStep5() {
     const { clientEmail, clientName, clientPhone, clientCompany, projectTypeId, budgetRange } =
       quoteStore.formData
 
     if (!clientEmail || !clientName) return
 
-    // Debouncé pour éviter les doubles appels
     if (captureTimeout) clearTimeout(captureTimeout)
 
     captureTimeout = setTimeout(async () => {
@@ -27,7 +44,7 @@ export function useLeadCapture() {
       captureError.value = null
 
       try {
-        const { data } = await leadsApi.capture({
+        const data = await capture({
           email: clientEmail,
           name: clientName,
           phone: clientPhone,
@@ -36,38 +53,28 @@ export function useLeadCapture() {
           budget_range: budgetRange,
           project_type_id: projectTypeId,
         })
-        quoteStore.leadId = data.id
+        if (data?.id) quoteStore.leadId = data.id
       } catch (err) {
-        // La capture de lead ne doit pas bloquer le wizard
         captureError.value = err.message
-        console.warn('Lead capture failed (non-blocking):', err.message)
       } finally {
         capturing.value = false
       }
     }, 800)
   }
 
-  async function captureFromROI(email, name, source = 'roi_calculator') {
-    if (!email) return
-    try {
-      await leadsApi.capture({ email, name: name || '', source })
-    } catch {
-      // Silently fail
-    }
+  /**
+   * Capture depuis le calculateur ROI.
+   */
+  function captureFromROI(email, name, source = 'roi_calculator') {
+    return capture({ email, name: name || '', source })
   }
 
-  async function captureFromEstimator(email, projectTypeId) {
-    if (!email) return
-    try {
-      await leadsApi.capture({
-        email,
-        source: 'quick_estimate',
-        project_type_id: projectTypeId,
-      })
-    } catch {
-      // Silently fail
-    }
+  /**
+   * Capture depuis l'estimateur rapide.
+   */
+  function captureFromEstimator(email, projectTypeId) {
+    return capture({ email, source: 'quick_estimate', project_type_id: projectTypeId })
   }
 
-  return { capturing, captureError, captureFromStep5, captureFromROI, captureFromEstimator }
+  return { capturing, captureError, capture, captureFromStep5, captureFromROI, captureFromEstimator }
 }

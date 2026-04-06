@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.utils.html import format_html
 from django.db.models import Avg
 from .models import Lead
+from utils.admin_badges import render_boolean_badge
 
 
 @admin.register(Lead)
@@ -76,15 +77,7 @@ class LeadAdmin(admin.ModelAdmin):
     score_bar.admin_order_field = 'score'
 
     def converted_badge(self, obj):
-        if obj.is_converted:
-            return format_html(
-                '<span style="background:#10b981;color:white;padding:2px 8px;'
-                'border-radius:10px;font-size:11px">✓ Converti</span>'
-            )
-        return format_html(
-            '<span style="background:#e5e7eb;color:#6b7280;padding:2px 8px;'
-            'border-radius:10px;font-size:11px">En attente</span>'
-        )
+        return render_boolean_badge(obj.is_converted, '✓ Converti', 'En attente')
     converted_badge.short_description = 'Conversion'
 
     def get_queryset(self, request):

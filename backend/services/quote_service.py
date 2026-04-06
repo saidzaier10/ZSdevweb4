@@ -1,11 +1,14 @@
 """
 QuoteService — Orchestration de la création et gestion des devis.
 """
+import logging
 import secrets
 from decimal import Decimal
 
 from .pricing_service import PricingService
 from .lead_service import LeadService
+
+logger = logging.getLogger(__name__)
 
 
 class QuoteService:
@@ -89,8 +92,8 @@ class QuoteService:
             )
             quote.lead = lead
             quote.save(update_fields=['lead'])
-        except Exception:
-            pass  # La capture de lead ne doit jamais faire échouer la création du devis
+        except Exception as e:
+            logger.warning(f'Lead capture failed for quote {quote.quote_number} (non-blocking): {e}')
 
         return quote
 

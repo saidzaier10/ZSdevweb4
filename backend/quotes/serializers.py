@@ -22,7 +22,8 @@ class QuoteCreateSerializer(serializers.Serializer):
     project_description = serializers.CharField(required=False, allow_blank=True)
     desired_deadline = serializers.DateField(required=False, allow_null=True)
     discount_percent = serializers.DecimalField(
-        max_digits=5, decimal_places=2, required=False, default=0
+        max_digits=5, decimal_places=2, required=False, default=0,
+        min_value=0, max_value=100,
     )
 
 

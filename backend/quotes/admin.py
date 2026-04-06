@@ -9,6 +9,7 @@ from django.shortcuts import render
 from .models import Quote, QuoteEmailLog
 from services.email_service import EmailService
 from services.pdf_service import PdfService
+from utils.admin_badges import render_status_badge, QUOTE_STATUS_COLORS, EMAIL_STATUS_COLORS
 
 
 class QuoteEmailLogInline(admin.TabularInline):
@@ -156,20 +157,7 @@ class QuoteAdmin(admin.ModelAdmin):
     total_ttc_display.admin_order_field = 'total_ttc'
 
     def status_badge(self, obj):
-        colors = {
-            'draft':    ('#6b7280', 'Brouillon'),
-            'sent':     ('#3b82f6', 'Envoyé'),
-            'viewed':   ('#8b5cf6', 'Consulté'),
-            'accepted': ('#10b981', 'Accepté'),
-            'rejected': ('#ef4444', 'Refusé'),
-            'expired':  ('#f59e0b', 'Expiré'),
-        }
-        color, label = colors.get(obj.status, ('#6b7280', obj.status))
-        return format_html(
-            '<span style="background:{};color:white;padding:3px 10px;'
-            'border-radius:12px;font-size:11px;font-weight:600">{}</span>',
-            color, label,
-        )
+        return render_status_badge(obj.status, QUOTE_STATUS_COLORS)
     status_badge.short_description = 'Statut'
 
     def actions_buttons(self, obj):
@@ -260,10 +248,5 @@ class QuoteEmailLogAdmin(admin.ModelAdmin):
     readonly_fields = ('quote', 'sent_to', 'sent_at', 'subject', 'status', 'error_message', 'message_id')
 
     def status_badge(self, obj):
-        color = '#10b981' if obj.status == 'sent' else '#ef4444'
-        return format_html(
-            '<span style="background:{};color:white;padding:2px 8px;'
-            'border-radius:10px;font-size:11px">{}</span>',
-            color, obj.status,
-        )
+        return render_status_badge(obj.status, EMAIL_STATUS_COLORS)
     status_badge.short_description = 'Statut'

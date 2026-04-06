@@ -66,8 +66,8 @@ instance.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/auth/token/refresh/`,
+        const { data } = await instance.post(
+          '/api/v1/auth/token/refresh/',
           { refresh: refreshToken }
         )
         localStorage.setItem('access_token', data.access)

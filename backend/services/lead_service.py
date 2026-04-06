@@ -116,9 +116,11 @@ class LeadService:
         return points
 
     def mark_converted(self, lead) -> None:
-        """Marque un lead comme converti (devis accepté)."""
+        """
+        Marque un lead comme converti (devis accepté).
+        LSP: ne réinitialise pas le score — le score reste additif et ne recule jamais.
+        """
         if not lead.is_converted:
             lead.is_converted = True
             lead.converted_at = timezone.now()
-            lead.score = 100
-            lead.save(update_fields=['is_converted', 'converted_at', 'score'])
+            lead.save(update_fields=['is_converted', 'converted_at'])

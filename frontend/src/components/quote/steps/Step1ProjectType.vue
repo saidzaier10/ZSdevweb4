@@ -48,6 +48,7 @@ import { onMounted } from 'vue'
 import { useQuoteStore } from '@/stores/quote.js'
 import { useCatalogStore } from '@/stores/catalog.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 defineEmits(['next'])
 
@@ -55,10 +56,6 @@ const quoteStore = useQuoteStore()
 const catalogStore = useCatalogStore()
 
 onMounted(() => catalogStore.fetchAll())
-
-function formatPrice(price) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price)
-}
 
 function selectType(type) {
   quoteStore.updateFormData({ projectTypeId: type.id })
