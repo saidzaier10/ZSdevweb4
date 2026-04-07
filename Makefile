@@ -1,4 +1,4 @@
-.PHONY: dev prod build down logs shell migrate seed test lint help
+.PHONY: dev prod build down logs shell migrate seed test lint help backup-db restore-db prune-backups
 
 # ============================================
 # ZSDEVWEB — Makefile
@@ -21,6 +21,9 @@ help:
 	@echo "  make lint       → Linter le code"
 	@echo "  make superuser  → Créer un superutilisateur"
 	@echo "  make psql       → Ouvrir psql"
+	@echo "  make backup-db  → Créer un backup PostgreSQL compressé"
+	@echo "  make restore-db FILE=/abs/path/file.sql.gz → Restaurer un backup"
+	@echo "  make prune-backups [DAYS=7] → Purger les backups anciens"
 	@echo ""
 
 # === Développement ===
@@ -90,6 +93,16 @@ psql:
 
 db-shell:
 	docker compose exec db sh
+
+backup-db:
+	bash deploy/backup-db.sh
+
+restore-db:
+	@test -n "$(FILE)" || (echo "Usage: make restore-db FILE=/abs/path/file.sql.gz" && exit 1)
+	bash deploy/restore-db.sh "$(FILE)"
+
+prune-backups:
+	BACKUP_RETENTION_DAYS=$(or $(DAYS),7) bash deploy/prune-backups.sh
 
 # === Tests ===
 
