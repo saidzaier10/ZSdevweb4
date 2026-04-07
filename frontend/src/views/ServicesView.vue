@@ -89,4 +89,15 @@ const stack = [
   'Django 5', 'Django REST Framework', 'PostgreSQL', 'Redis',
   'Docker', 'Nginx', 'Gunicorn', 'Stripe', 'JWT', 'GitHub Actions',
 ]
+
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Services Web & Digitalisation pour PME — Roubaix, Tourcoing, Hem | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Découvrez nos services de création de sites vitrines, applications sur mesure et e-commerce. Des solutions performantes adaptées aux TPE et PME localisées à Mouvaux et sur la métropole de Lille.' },
+    { property: 'og:title', content: 'Services de Digitalisation Web — Zsdevweb' },
+    { property: 'og:description', content: 'Découvrez nos services web pour les TPE/PME de Roubaix, Tourcoing, Hem.' }
+  ]
+})
 </script>

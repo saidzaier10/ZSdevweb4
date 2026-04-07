@@ -17,15 +17,15 @@
         </div>
 
         <h1 class="text-5xl md:text-6xl font-display font-bold leading-tight mb-6">
-          Je construis des sites web qui
+          Je conçois des sites web qui
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">
-            génèrent des clients
+            digitalisent les TPE/PME
           </span>
         </h1>
 
         <p class="text-gray-300 text-xl leading-relaxed mb-10 max-w-2xl">
-          Développeur freelance full-stack spécialisé Vue.js & Django.
-          Je crée des applications web modernes, rapides et orientées conversion.
+          Développeur web freelance basé à Mouvaux. J'accompagne les entreprises
+          de la métropole lilloise (Hem, Roubaix, Tourcoing) avec des sites web modernes et orientés résultat.
         </p>
 
         <!-- Stats rapides -->

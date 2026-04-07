@@ -74,4 +74,15 @@ async function submit() {
     loading.value = false
   }
 }
+
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Audit SEO et Performance Gratuit pour votre TPE/PME | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Obtenez un audit SEO et technique gratuit à 100% pour votre entreprise. Zsdevweb analyse gratuitement la performance de votre site local.' },
+    { property: 'og:title', content: 'Audit SEO Gratuit par Zsdevweb' },
+    { property: 'og:description', content: 'Obtenez un audit SEO complet gratuit pour votre site internet.' }
+  ]
+})
 </script>

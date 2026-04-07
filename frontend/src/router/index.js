@@ -5,13 +5,13 @@ const routes = [
     path: '/',
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
-    meta: { title: 'Zsdevweb — Développeur Web Freelance' },
+    meta: { title: 'Création de site web TPE/PME — Mouvaux & Lille Metropole | Zsdevweb' },
   },
   {
     path: '/services',
     name: 'services',
     component: () => import('@/views/ServicesView.vue'),
-    meta: { title: 'Services — Zsdevweb' },
+    meta: { title: 'Services Web & Digitalisation pour PME — Roubaix, Tourcoing, Hem | Zsdevweb' },
   },
   {
     path: '/portfolio',
@@ -100,8 +100,6 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-router.afterEach((to) => {
-  document.title = to.meta.title || 'Zsdevweb'
-})
+// Titles are managed by @unhead/vue in each component
 
 export default router

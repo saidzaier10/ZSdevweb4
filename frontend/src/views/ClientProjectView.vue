@@ -199,7 +199,15 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { clientApi } from '@/api/client.js'
+import { useHead } from '@unhead/vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+
+useHead({
+  title: 'Mon projet | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
 
 const route = useRoute()
 const project = ref(null)

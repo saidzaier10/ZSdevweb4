@@ -174,8 +174,16 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api/axios.js'
+import { useHead } from '@unhead/vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+
+useHead({
+  title: 'Signer votre devis | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
 import { formatPrice } from '@/utils/formatters.js'
 
 const route = useRoute()

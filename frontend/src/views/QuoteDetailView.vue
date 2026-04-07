@@ -168,9 +168,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { quotesApi } from '@/api/quotes.js'
+import { useHead } from '@unhead/vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
+
+useHead({
+  title: 'Votre devis | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
 import { formatPrice } from '@/utils/formatters.js'
 
 const route = useRoute()

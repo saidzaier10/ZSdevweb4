@@ -12,10 +12,16 @@
         </section>
       </div>
     </div>
-  </div>
-</template>
-
 <script setup>
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Mentions légales | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
+
 const sections = [
   {
     title: 'Éditeur du site',
@@ -23,7 +29,7 @@ const sections = [
       'Zsdevweb — Développeur web freelance',
       'Statut : Auto-entrepreneur',
       'Email : contact@zsdevweb.fr',
-      'SIRET : À compléter',
+      'SIRET : 10297888900016',
     ],
   },
   {

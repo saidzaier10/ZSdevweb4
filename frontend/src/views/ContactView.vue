@@ -71,4 +71,15 @@ async function submit() {
     loading.value = false
   }
 }
+
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Contactez Zsdevweb — Devis et Création Web à Mouvaux / Lille',
+  meta: [
+    { name: 'description', content: 'Un projet de création de site internet ou d\'application sur la métropole lilloise (Mouvaux, Roubaix, Tourcoing) ? Contactez-moi pour en discuter.' },
+    { property: 'og:title', content: 'Contactez Zsdevweb' },
+    { property: 'og:description', content: 'Un projet sur la métropole lilloise ? Contactez-moi pour en discuter.' }
+  ]
+})
 </script>

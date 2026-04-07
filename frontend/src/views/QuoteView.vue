@@ -72,4 +72,15 @@ function formatDate(dateStr) {
   if (!dateStr) return ''
   return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
+
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Demande de devis création de site internet | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Demandez un devis gratuit pour la création de votre site vitrine, e-commerce ou application web sur la métropole lilloise (Mouvaux, Roubaix, Tourcoing).' },
+    { property: 'og:title', content: 'Devis Création Site Web' },
+    { property: 'og:description', content: 'Demandez un devis gratuit pour votre projet digital.' }
+  ]
+})
 </script>

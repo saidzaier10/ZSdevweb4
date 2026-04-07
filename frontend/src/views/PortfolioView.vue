@@ -89,4 +89,15 @@ const demoProjects = [
   { title: 'CRM Immobilier', description: 'Application web métier pour agence immobilière. Gestion des biens, clients et rendez-vous.', bg: 'bg-blue-100', emoji: '🏠', stack: ['Vue.js 3', 'Django REST', 'Redis', 'Docker'] },
   { title: 'SaaS RH', description: 'Plateforme de gestion des ressources humaines avec tableaux de bord et automatisations.', bg: 'bg-purple-100', emoji: '👥', stack: ['Nuxt.js', 'Django', 'PostgreSQL', 'Celery'] },
 ]
+
+import { useHead } from '@unhead/vue'
+
+useHead({
+  title: 'Portfolio & Réalisations Web sur la Métropole Lilloise | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Découvrez les projets de création de site web et d\'applications développés par Zsdevweb. Nos réalisations pour des entreprises autour de Mouvaux, Lille, Roubaix et Tourcoing.' },
+    { property: 'og:title', content: 'Portfolio Web — Zsdevweb' },
+    { property: 'og:description', content: 'Nos derniers projets digitaux sur-mesure pour TPE et PME.' }
+  ]
+})
 </script>
