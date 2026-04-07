@@ -6,6 +6,8 @@ from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -29,6 +31,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
     'corsheaders',
     'django_filters',
     'django_celery_beat',
@@ -167,6 +170,15 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'EXCEPTION_HANDLER': 'utils.exceptions.custom_exception_handler',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Zsdevweb API',
+    'DESCRIPTION': 'API pour la plateforme de génération de leads et devis.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # ============================================
@@ -184,16 +196,6 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-
-# ============================================
-# CORS
-# ============================================
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:5173,http://localhost:3000'
-).split(',')
-
-CORS_ALLOW_CREDENTIALS = True
 
 # ============================================
 # Email
@@ -222,3 +224,15 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 300  # 5 minutes max par tâche
+
+# ============================================
+# Monitoring Sentry (optionnel)
+# ============================================
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=config('SENTRY_TRACES_SAMPLE_RATE', default=0.0, cast=float),
+        send_default_pii=False,
+    )
