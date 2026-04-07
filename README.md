@@ -36,6 +36,8 @@ make dev
 Cela démarre :
 - **Frontend** → http://localhost:5173
 - **Backend API** → http://localhost:8000/api/v1/
+- **Swagger UI** → http://localhost:8000/api/v1/docs/ (dev)
+- **OpenAPI schema** → http://localhost:8000/api/v1/schema/ (dev)
 - **Django Admin** → http://localhost:8000/admin/
 - **PostgreSQL** sur port 5432
 - **Redis** sur port 6379
@@ -47,6 +49,22 @@ make migrate    # Applique les migrations
 make seed       # Charge le catalogue de services
 make createsuperuser  # Crée l'admin Django
 ```
+
+## Sécurité API (résumé)
+
+- Rate limiting activé sur les endpoints publics sensibles (devis, leads, contact, audit)
+- Réponses rate limit standardisées en JSON HTTP 429
+- Accès PDF devis protégé par token de signature (ou utilisateur authentifié)
+- Rejet des emails temporaires sur les formulaires publics
+- Génération/validation OpenAPI vérifiée en CI
+- Monitoring Sentry optionnel activable via variables d'environnement
+- Documentation API protégée en production (accès staff admin uniquement)
+- Health endpoint enrichi avec checks base de données et cache
+
+Endpoint health API :
+GET /api/v1/health/ retourne 200 (ok) ou 503 (degraded) avec checks database/cache.
+GET /api/v1/health/liveness/ retourne 200 si le process est vivant.
+GET /api/v1/health/readiness/ retourne 200/503 selon disponibilité DB/Redis.
 
 ## Commandes `make`
 
@@ -62,6 +80,19 @@ make shell        # Ouvre un shell Django
 make psql         # Ouvre une console PostgreSQL
 make createsuperuser  # Crée un superutilisateur Django
 make logs         # Affiche les logs en temps réel
+```
+
+## Backups base de données
+
+```bash
+make backup-db
+# Crée un dump compressé dans ./backups/
+
+make restore-db FILE=/chemin/absolu/backup.sql.gz
+# Restaure la base actuelle depuis un dump
+
+make prune-backups DAYS=7
+# Supprime les dumps de plus de N jours
 ```
 
 ## Architecture
@@ -114,6 +145,15 @@ cp .env.example .env
 
 make prod
 ```
+
+Checklist recommandée avant ouverture publique :
+1. Configurer `.env` production (SECRET_KEY forte, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS)
+2. Vérifier les checks applicatifs : `/api/v1/health/liveness/` puis `/api/v1/health/readiness/`
+3. Exécuter la suite CI complète (backend tests, OpenAPI validate, nginx config check)
+4. Effectuer un backup initial de la base (`make backup-db`) et planifier la retention (`make prune-backups`)
+5. Créer/valider l'admin staff pour accès docs production
+6. Tester le parcours critique (création devis, email, PDF, signature)
+7. Activer le monitoring (Sentry DSN) et vérifier la remontée d'erreurs
 
 La configuration de production utilise :
 - Gunicorn avec workers Uvicorn (`-w 4 --worker-class uvicorn.workers.UvicornWorker`)
