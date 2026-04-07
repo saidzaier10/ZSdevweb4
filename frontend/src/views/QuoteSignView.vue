@@ -205,7 +205,7 @@ const signError = ref('')
 
 onMounted(async () => {
   try {
-    const { data } = await api.get(`/quotes/${uuid}/sign/?token=${token}`)
+    const { data } = await api.get(`/api/v1/quotes/${uuid}/sign/?token=${token}`)
     if (data.valid) {
       quoteInfo.value = data
     } else {
@@ -232,7 +232,7 @@ onMounted(async () => {
 async function sign(action) {
   submitting.value = true
   try {
-    await api.post(`/quotes/${uuid}/sign/`, {
+    await api.post(`/api/v1/quotes/${uuid}/sign/`, {
       token,
       action,
       signature_name: signatureName.value,

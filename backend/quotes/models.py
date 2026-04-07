@@ -6,9 +6,11 @@ from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, 
 
 def generate_quote_number():
     from django.utils import timezone
+    from django.db import transaction
     year = timezone.now().year
-    count = Quote.objects.filter(created_at__year=year).count() + 1
-    return f'QT-{year}-{count:04d}'
+    with transaction.atomic():
+        count = Quote.objects.select_for_update().filter(created_at__year=year).count() + 1
+        return f'QT-{year}-{count:04d}'
 
 
 class Quote(models.Model):

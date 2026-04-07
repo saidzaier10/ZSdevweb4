@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from django.db.models import Prefetch
 from .models import ProjectCategory, ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
 from .serializers import (
     ProjectCategorySerializer,
@@ -13,7 +14,7 @@ class ProjectCategoryListView(generics.ListAPIView):
     serializer_class = ProjectCategorySerializer
     permission_classes = [permissions.AllowAny]
     queryset = ProjectCategory.objects.filter(is_active=True).prefetch_related(
-        'project_types'
+        Prefetch('project_types', queryset=ProjectType.objects.filter(is_active=True))
     )
 
 

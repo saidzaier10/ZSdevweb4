@@ -68,6 +68,12 @@ const routes = [
     meta: { title: 'Signer votre devis — Zsdevweb' },
   },
   {
+    path: '/connexion',
+    name: 'login',
+    component: () => import('@/views/LoginView.vue'),
+    meta: { title: 'Connexion — Zsdevweb' },
+  },
+  {
     path: '/espace-client',
     name: 'client-portal',
     component: () => import('@/views/ClientPortalView.vue'),
@@ -94,7 +100,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('access_token')
   if (to.meta.requiresAuth && !token) {
-    next({ name: 'home' })
+    next({ name: 'login' })
   } else {
     next()
   }
