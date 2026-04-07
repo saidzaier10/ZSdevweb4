@@ -12,6 +12,9 @@
         </section>
       </div>
     </div>
+  </div>
+</template>
+
 <script setup>
 import { useHead } from '@unhead/vue'
 
