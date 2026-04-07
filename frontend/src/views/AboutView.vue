@@ -72,6 +72,8 @@
 </template>
 
 <script setup>
+import { useHead } from '@unhead/vue'
+
 const values = [
   { emoji: '🎯', title: 'Orienté résultats', description: 'Chaque ligne de code doit servir un objectif business concret.' },
   { emoji: '🔍', title: 'Transparent', description: 'Communication claire, délais respectés, pas de mauvaises surprises.' },
@@ -85,8 +87,6 @@ const stats = [
   { label: 'Clients satisfaits', value: '100%' },
   { label: 'Délai moyen', value: '< 6 sem.' },
 ]
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'À propos de Zsdevweb — Développeur Web TPE/PME à Mouvaux',

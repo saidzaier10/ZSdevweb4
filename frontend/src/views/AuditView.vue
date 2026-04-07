@@ -50,6 +50,7 @@ import { ref, reactive } from 'vue'
 import { auditApi } from '@/api/audit.js'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useHead } from '@unhead/vue'
 
 const form = reactive({ site_url: '', name: '', email: '', phone: '', company: '', current_issues: '', objectives: [], budget_range: '' })
 const loading = ref(false)
@@ -74,8 +75,6 @@ async function submit() {
     loading.value = false
   }
 }
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Audit SEO et Performance Gratuit pour votre TPE/PME | Zsdevweb',

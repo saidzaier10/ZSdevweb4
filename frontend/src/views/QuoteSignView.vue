@@ -177,6 +177,7 @@ import api from '@/api/axios.js'
 import { useHead } from '@unhead/vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 useHead({
   title: 'Signer votre devis | Zsdevweb',
@@ -184,7 +185,6 @@ useHead({
     { name: 'robots', content: 'noindex, nofollow' }
   ]
 })
-import { formatPrice } from '@/utils/formatters.js'
 
 const route = useRoute()
 const uuid = route.params.uuid

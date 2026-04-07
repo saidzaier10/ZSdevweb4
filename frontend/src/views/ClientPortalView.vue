@@ -142,6 +142,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { clientApi } from '@/api/client.js'
 import { useHead } from '@unhead/vue'
+import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 useHead({
   title: 'Espace client | Zsdevweb',
@@ -149,8 +151,6 @@ useHead({
     { name: 'robots', content: 'noindex, nofollow' }
   ]
 })
-import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
-import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 const authStore = useAuthStore()
 const projects = ref([])

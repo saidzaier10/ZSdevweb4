@@ -53,6 +53,7 @@ import { ref, reactive } from 'vue'
 import { contactApi } from '@/api/contact.js'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useHead } from '@unhead/vue'
 
 const form = reactive({ name: '', email: '', phone: '', company: '', subject: 'project', message: '' })
 const loading = ref(false)
@@ -71,8 +72,6 @@ async function submit() {
     loading.value = false
   }
 }
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Contactez Zsdevweb — Devis et Création Web à Mouvaux / Lille',

@@ -72,6 +72,7 @@
 import { ref, onMounted } from 'vue'
 import { portfolioApi } from '@/api/portfolio.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useHead } from '@unhead/vue'
 
 const projects = ref([])
 const loading = ref(true)
@@ -89,8 +90,6 @@ const demoProjects = [
   { title: 'CRM Immobilier', description: 'Application web métier pour agence immobilière. Gestion des biens, clients et rendez-vous.', bg: 'bg-blue-100', emoji: '🏠', stack: ['Vue.js 3', 'Django REST', 'Redis', 'Docker'] },
   { title: 'SaaS RH', description: 'Plateforme de gestion des ressources humaines avec tableaux de bord et automatisations.', bg: 'bg-purple-100', emoji: '👥', stack: ['Nuxt.js', 'Django', 'PostgreSQL', 'Celery'] },
 ]
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Portfolio & Réalisations Web sur la Métropole Lilloise | Zsdevweb',

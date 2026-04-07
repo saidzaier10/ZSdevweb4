@@ -51,6 +51,8 @@
 </template>
 
 <script setup>
+import { useHead } from '@unhead/vue'
+
 const services = [
   {
     title: 'Site Vitrine', emoji: '🌐', bg: 'bg-blue-50', startingPrice: '1 500€',
@@ -89,8 +91,6 @@ const stack = [
   'Django 5', 'Django REST Framework', 'PostgreSQL', 'Redis',
   'Docker', 'Nginx', 'Gunicorn', 'Stripe', 'JWT', 'GitHub Actions',
 ]
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Services Web & Digitalisation pour PME — Roubaix, Tourcoing, Hem | Zsdevweb',

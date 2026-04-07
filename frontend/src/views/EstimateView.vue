@@ -138,6 +138,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useCatalogStore } from '@/stores/catalog.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useHead } from '@unhead/vue'
 
 const catalogStore = useCatalogStore()
 const selectedTypeId = ref(null)
@@ -170,8 +171,6 @@ function formatPrice(value) {
     style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
   }).format(value)
 }
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Estimer le prix d\'un site web | Simulateur en ligne - Zsdevweb',

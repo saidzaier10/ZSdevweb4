@@ -55,6 +55,7 @@ import { onBeforeRouteLeave } from 'vue-router'
 import { useQuoteStore } from '@/stores/quote.js'
 import QuoteWizard from '@/components/quote/QuoteWizard.vue'
 import { formatPrice } from '@/utils/formatters.js'
+import { useHead } from '@unhead/vue'
 
 const quoteStore = useQuoteStore()
 
@@ -72,8 +73,6 @@ function formatDate(dateStr) {
   if (!dateStr) return ''
   return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
-
-import { useHead } from '@unhead/vue'
 
 useHead({
   title: 'Demande de devis création de site internet | Zsdevweb',

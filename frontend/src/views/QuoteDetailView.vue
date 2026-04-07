@@ -172,6 +172,7 @@ import { useHead } from '@unhead/vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
+import { formatPrice } from '@/utils/formatters.js'
 
 useHead({
   title: 'Votre devis | Zsdevweb',
@@ -179,7 +180,6 @@ useHead({
     { name: 'robots', content: 'noindex, nofollow' }
   ]
 })
-import { formatPrice } from '@/utils/formatters.js'
 
 const route = useRoute()
 const quote = ref(null)
