@@ -1,9 +1,13 @@
 import secrets
+import logging
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare
+from django.utils.decorators import method_decorator
 from django.http import FileResponse
+from django_ratelimit.decorators import ratelimit
 
 from .models import Quote
 from .serializers import QuoteCreateSerializer, QuoteDetailSerializer, PricePreviewSerializer
@@ -13,9 +17,13 @@ from services.email_service import EmailService
 from services.recommendation_service import RecommendationService
 
 
+logger = logging.getLogger(__name__)
+
+
 class QuoteCreateView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True))
     def post(self, request):
         serializer = QuoteCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -40,6 +48,10 @@ class QuoteDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = QuoteDetailSerializer
     lookup_field = 'uuid'
+
+    @method_decorator(ratelimit(key='ip', rate='60/m', method='GET', block=True))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return Quote.objects.select_related(
@@ -90,11 +102,16 @@ class QuoteSendView(APIView):
 class QuotePdfView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='20/m', method='GET', block=True))
     def get(self, request, uuid):
         try:
             quote = Quote.objects.get(uuid=uuid)
         except Quote.DoesNotExist:
             return Response({'detail': 'Devis non trouvé.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not _is_token_valid(request.query_params.get('token', ''), quote.signature_token) and not request.user.is_authenticated:
+            logger.warning('quote_pdf_access_denied quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
+            return Response({'detail': 'Accès refusé.'}, status=status.HTTP_403_FORBIDDEN)
 
         if not quote.pdf_file:
             PdfService.generate_quote_pdf(quote)
@@ -121,6 +138,7 @@ class QuoteSignView(APIView):
     """
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='10/m', method='GET', block=True))
     def get(self, request, uuid):
         """Vérifie la validité du token de signature."""
         token = request.query_params.get('token', '')
@@ -129,7 +147,8 @@ class QuoteSignView(APIView):
         except Quote.DoesNotExist:
             return Response({'valid': False, 'detail': 'Devis non trouvé.'}, status=404)
 
-        if not token or quote.signature_token != token:
+        if not _is_token_valid(token, quote.signature_token):
+            logger.warning('quote_sign_get_invalid_token quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
             return Response({'valid': False, 'detail': 'Token invalide.'}, status=400)
 
         if quote.status in ('accepted', 'rejected', 'expired'):
@@ -148,6 +167,7 @@ class QuoteSignView(APIView):
             'status': quote.status,
         })
 
+    @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True))
     def post(self, request, uuid):
         """
         Accepte ou refuse le devis.
@@ -163,7 +183,8 @@ class QuoteSignView(APIView):
             return Response({'detail': 'Devis non trouvé.'}, status=404)
 
         # Valider le token
-        if not token or quote.signature_token != token:
+        if not _is_token_valid(token, quote.signature_token):
+            logger.warning('quote_sign_post_invalid_token quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
             return Response({'detail': 'Token de signature invalide.'}, status=400)
 
         # Vérifier que le devis est signable
@@ -195,6 +216,7 @@ class QuoteSignView(APIView):
 
             # Notification admin
             _notify_admin_signature(quote, accepted=True)
+            logger.info('quote_signed_accepted quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
 
             return Response({
                 'detail': 'Devis accepté avec succès. Nous vous contacterons sous 24h.',
@@ -210,6 +232,7 @@ class QuoteSignView(APIView):
             quote.save(update_fields=['status', 'notes_internal'])
 
             _notify_admin_signature(quote, accepted=False, reason=reason)
+            logger.info('quote_signed_rejected quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
 
             return Response({
                 'detail': 'Devis refusé. Merci de nous avoir contactés.',
@@ -226,6 +249,7 @@ class PricePreviewView(APIView):
     """
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='30/m', method='POST', block=True))
     def post(self, request):
         serializer = PricePreviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -239,6 +263,12 @@ class PricePreviewView(APIView):
 
 
 # ---- Helpers ----
+
+def _is_token_valid(provided_token: str, expected_token: str) -> bool:
+    """Compare les tokens de façon sûre et résiste aux attaques timing."""
+    if not provided_token or not expected_token:
+        return False
+    return constant_time_compare(str(provided_token), str(expected_token))
 
 def _notify_admin_signature(quote, accepted: bool, reason: str = '') -> None:
     """Notifie l'admin par email lors d'une signature."""

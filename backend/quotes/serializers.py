@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Quote, QuoteEmailLog
+from utils.email_validation import validate_business_email
 from services_catalog.serializers import (
     ProjectTypeSerializer, DesignOptionSerializer,
     ComplexityLevelSerializer, SupplementaryOptionSerializer
@@ -25,6 +26,9 @@ class QuoteCreateSerializer(serializers.Serializer):
         max_digits=5, decimal_places=2, required=False, default=0,
         min_value=0, max_value=100,
     )
+
+    def validate_client_email(self, value):
+        return validate_business_email(value)
 
 
 class QuoteListSerializer(serializers.ModelSerializer):
