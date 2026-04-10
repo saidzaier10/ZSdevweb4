@@ -101,46 +101,24 @@ class TestCreateFromWizard:
         defaults.update(kwargs)
         return defaults
 
-    @patch('services.quote_service.ProjectType')
-    @patch('services.quote_service.ComplexityLevel')
-    @patch('services.quote_service.DesignOption')
-    @patch('services.quote_service.SupplementaryOption')
-    @patch('services.quote_service.Quote')
-    @patch('services.quote_service.LeadService')
-    def test_create_returns_quote(
-        self,
-        mock_lead_service, mock_quote_cls,
-        mock_opts_model, mock_do_model,
-        mock_cl_model, mock_pt_model,
-    ):
-        """Vérifie que create_from_wizard crée et retourne un Quote."""
+    @pytest.mark.django_db
+    @patch('quotes.models.Quote.save', autospec=True)
+    def test_create_returns_quote(self, mock_save):
+        """Vérifie que create_from_wizard appelle save() et retourne un Quote."""
+        from services_catalog.models import ProjectType, ComplexityLevel, ProjectCategory
         from services.quote_service import QuoteService
 
-        # Setup mocks
-        pt = make_project_type()
-        cl = make_complexity()
-        mock_pt_model.objects.get.return_value = pt
-        mock_cl_model.objects.get.return_value = cl
-        mock_do_model.objects.get.return_value = None
-        mock_opts_model.objects.filter.return_value = []
+        mock_save.return_value = None
 
-        mock_quote_instance = MagicMock()
-        mock_quote_instance.quote_number = 'QT-2026-0001'
-        mock_quote_instance.uuid = 'fake-uuid'
-        mock_quote_cls.return_value = mock_quote_instance
+        cat = ProjectCategory.objects.create(name='Web', slug='web')
+        pt = ProjectType.objects.create(name='Vitrine', slug='vitrine', base_price='1500', category=cat)
+        cl = ComplexityLevel.objects.create(name='Simple', slug='simple', multiplier='1.0', order=1)
 
-        mock_lead_service.capture.return_value = MagicMock(id=1)
+        wizard_data = self._make_wizard_data(project_type_id=pt.pk, complexity_id=cl.pk)
 
-        wizard_data = self._make_wizard_data()
-
-        try:
-            result = QuoteService.create_from_wizard(wizard_data)
-            # Si ça ne lève pas, le service est appelable
-            assert result is not None
-        except Exception:
-            # En environnement de test sans Django setup, certains imports peuvent échouer
-            # On vérifie au minimum que PricingService est utilisé correctement
-            pass
+        result = QuoteService().create_from_wizard(wizard_data)
+        assert result is not None
+        mock_save.assert_called_once()
 
     def test_pricing_breakdown_used_correctly(self):
         """Vérifie que les calculs de pricing sont cohérents avec ce que le wizard soumet."""

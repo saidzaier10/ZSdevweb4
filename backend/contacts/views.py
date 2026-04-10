@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
 from .models import ContactRequest

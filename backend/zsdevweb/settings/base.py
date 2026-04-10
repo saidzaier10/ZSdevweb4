@@ -36,7 +36,6 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'django_filters',
     'django_celery_beat',
-    'drf_spectacular',
 ]
 
 LOCAL_APPS = [
@@ -186,14 +185,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'EXCEPTION_HANDLER': 'utils.exceptions.custom_exception_handler',
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Zsdevweb API',
-    'DESCRIPTION': 'API pour la plateforme de génération de leads et devis.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 # ============================================

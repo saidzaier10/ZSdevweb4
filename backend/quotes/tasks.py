@@ -105,7 +105,7 @@ def send_lead_follow_ups(self):
         hot_leads = Lead.objects.filter(
             score__gte=50,
             is_converted=False,
-            quote__isnull=True,
+            quotes__isnull=True,
             created_at__lte=cutoff,
         )
 

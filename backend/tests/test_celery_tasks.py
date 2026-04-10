@@ -137,12 +137,15 @@ class TestSendLeadFollowUps:
     def test_sends_email_for_hot_lead(self):
         """Un lead chaud (score >= 50) sans devis doit recevoir un email de relance."""
         from leads.models import Lead
-        Lead.objects.create(
+        lead = Lead.objects.create(
             email='hot@example.com',
             name='Lead Chaud',
             score=75,
             is_converted=False,
-            created_at=timezone.now() - timedelta(hours=72),
+        )
+        # created_at est auto_now_add, on le force via update()
+        Lead.objects.filter(pk=lead.pk).update(
+            created_at=timezone.now() - timedelta(hours=72)
         )
         result = send_lead_follow_ups.delay()
         assert result.result['sent'] == 1
@@ -152,35 +155,23 @@ class TestSendLeadFollowUps:
     def test_does_not_send_for_cold_lead(self):
         """Un lead froid (score < 50) ne doit pas recevoir de relance."""
         from leads.models import Lead
-        Lead.objects.create(
-            email='cold@example.com',
-            score=30,
-            is_converted=False,
-            created_at=timezone.now() - timedelta(hours=72),
-        )
+        lead = Lead.objects.create(email='cold@example.com', score=30, is_converted=False)
+        Lead.objects.filter(pk=lead.pk).update(created_at=timezone.now() - timedelta(hours=72))
         result = send_lead_follow_ups.delay()
         assert result.result['sent'] == 0
 
     def test_does_not_send_for_recent_lead(self):
         """Un lead créé il y a moins de 48h ne doit pas encore être relancé."""
         from leads.models import Lead
-        Lead.objects.create(
-            email='recent@example.com',
-            score=80,
-            is_converted=False,
-            created_at=timezone.now() - timedelta(hours=24),
-        )
+        Lead.objects.create(email='recent@example.com', score=80, is_converted=False)
+        # created_at = now() par défaut → trop récent, filtre cutoff 48h le rejette
         result = send_lead_follow_ups.delay()
         assert result.result['sent'] == 0
 
     def test_does_not_send_for_converted_lead(self):
         """Un lead converti ne doit pas recevoir de relance."""
         from leads.models import Lead
-        Lead.objects.create(
-            email='converted@example.com',
-            score=90,
-            is_converted=True,
-            created_at=timezone.now() - timedelta(hours=72),
-        )
+        lead = Lead.objects.create(email='converted@example.com', score=90, is_converted=True)
+        Lead.objects.filter(pk=lead.pk).update(created_at=timezone.now() - timedelta(hours=72))
         result = send_lead_follow_ups.delay()
         assert result.result['sent'] == 0

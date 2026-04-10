@@ -1,9 +1,11 @@
+import pytest
 from unittest.mock import patch
 
 from django.test import Client
 from django.urls import reverse
 
 
+@pytest.mark.django_db
 class TestHealthEndpoint:
     def setup_method(self):
         self.client = Client()
