@@ -138,6 +138,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useCatalogStore } from '@/stores/catalog.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useHead } from '@unhead/vue'
 
 const catalogStore = useCatalogStore()
 const selectedTypeId = ref(null)
@@ -170,4 +171,13 @@ function formatPrice(value) {
     style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
   }).format(value)
 }
+
+useHead({
+  title: 'Estimer le prix d\'un site web | Simulateur en ligne - Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Estimez gratuitement et en 30 secondes le prix de votre site web, e-commerce ou application SaaS avec notre simulateur.' },
+    { property: 'og:title', content: 'Estimer le prix d\'un site web' },
+    { property: 'og:description', content: 'Estimez le coût de votre projet en ligne.' }
+  ]
+})
 </script>

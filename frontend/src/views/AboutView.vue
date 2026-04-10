@@ -72,6 +72,8 @@
 </template>
 
 <script setup>
+import { useHead } from '@unhead/vue'
+
 const values = [
   { emoji: '🎯', title: 'Orienté résultats', description: 'Chaque ligne de code doit servir un objectif business concret.' },
   { emoji: '🔍', title: 'Transparent', description: 'Communication claire, délais respectés, pas de mauvaises surprises.' },
@@ -85,4 +87,13 @@ const stats = [
   { label: 'Clients satisfaits', value: '100%' },
   { label: 'Délai moyen', value: '< 6 sem.' },
 ]
+
+useHead({
+  title: 'À propos de Zsdevweb — Développeur Web TPE/PME à Mouvaux',
+  meta: [
+    { name: 'description', content: 'Développeur freelance basé à Mouvaux. Construisons des applications web modernes et performantes. Découvrez mon parcours et mon approche centrée sur les résultats.' },
+    { property: 'og:title', content: 'À propos de Zsdevweb' },
+    { property: 'og:description', content: 'Développeur web freelance à Mouvaux. Découvrez ma philosophie.' }
+  ]
+})
 </script>

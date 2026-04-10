@@ -51,8 +51,11 @@
 </template>
 
 <script setup>
+import { onBeforeRouteLeave } from 'vue-router'
 import { useQuoteStore } from '@/stores/quote.js'
 import QuoteWizard from '@/components/quote/QuoteWizard.vue'
+import { formatPrice } from '@/utils/formatters.js'
+import { useHead } from '@unhead/vue'
 
 const quoteStore = useQuoteStore()
 
@@ -60,12 +63,23 @@ function onSubmitted(quote) {
   // Le store gère déjà l'état submitted
 }
 
-function formatPrice(value) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value)
-}
+onBeforeRouteLeave(() => {
+  const hasProgress = quoteStore.currentStep > 1 && !quoteStore.submitted
+  if (!hasProgress) return true
+  return window.confirm('Vous avez un devis en cours. Quitter cette page effacera votre progression. Continuer ?')
+})
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
   return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
+
+useHead({
+  title: 'Demande de devis création de site internet | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Demandez un devis gratuit pour la création de votre site vitrine, e-commerce ou application web sur la métropole lilloise (Mouvaux, Roubaix, Tourcoing).' },
+    { property: 'og:title', content: 'Devis Création Site Web' },
+    { property: 'og:description', content: 'Demandez un devis gratuit pour votre projet digital.' }
+  ]
+})
 </script>

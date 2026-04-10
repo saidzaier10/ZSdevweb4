@@ -2,6 +2,7 @@ import secrets
 import logging
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare
@@ -10,6 +11,7 @@ from django.http import FileResponse
 from django_ratelimit.decorators import ratelimit
 
 from .models import Quote
+from .permissions import IsOwnerOrStaffOrValidToken
 from .serializers import QuoteCreateSerializer, QuoteDetailSerializer, PricePreviewSerializer
 from services.quote_service import QuoteService
 from services.pdf_service import PdfService
@@ -22,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 class QuoteCreateView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'quote_create'
 
     @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True))
     def post(self, request):
@@ -45,7 +49,7 @@ class QuoteCreateView(APIView):
 
 
 class QuoteDetailView(generics.RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsOwnerOrStaffOrValidToken]
     serializer_class = QuoteDetailSerializer
     lookup_field = 'uuid'
 
@@ -78,7 +82,7 @@ class QuoteDetailView(generics.RetrieveAPIView):
 
 
 class QuoteSendView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
     def post(self, request, uuid):
         try:
@@ -104,6 +108,7 @@ class QuotePdfView(APIView):
 
     @method_decorator(ratelimit(key='ip', rate='20/m', method='GET', block=True))
     def get(self, request, uuid):
+        from django.utils.crypto import constant_time_compare
         try:
             quote = Quote.objects.get(uuid=uuid)
         except Quote.DoesNotExist:
@@ -121,6 +126,14 @@ class QuotePdfView(APIView):
                 {'detail': 'PDF non disponible.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
+
+        from django.conf import settings as django_settings
+        if not django_settings.DEBUG:
+            from django.http import HttpResponse
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="Devis_{quote.quote_number}.pdf"'
+            response['X-Accel-Redirect'] = f'/media/{quote.pdf_file.name}'
+            return response
 
         return FileResponse(
             quote.pdf_file.open('rb'),

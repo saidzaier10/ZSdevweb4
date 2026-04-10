@@ -51,6 +51,8 @@
 </template>
 
 <script setup>
+import { useHead } from '@unhead/vue'
+
 const services = [
   {
     title: 'Site Vitrine', emoji: '🌐', bg: 'bg-blue-50', startingPrice: '1 500€',
@@ -89,4 +91,42 @@ const stack = [
   'Django 5', 'Django REST Framework', 'PostgreSQL', 'Redis',
   'Docker', 'Nginx', 'Gunicorn', 'Stripe', 'JWT', 'GitHub Actions',
 ]
+
+useHead({
+  title: 'Services Web & Digitalisation pour PME — Roubaix, Tourcoing, Hem | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Découvrez nos services de création de sites vitrines, applications sur mesure et e-commerce. Des solutions performantes adaptées aux TPE et PME localisées à Mouvaux et sur la métropole de Lille.' },
+    { property: 'og:title', content: 'Services de Digitalisation Web — Zsdevweb' },
+    { property: 'og:description', content: 'Découvrez nos services web pour les TPE/PME de Roubaix, Tourcoing, Hem.' },
+    { property: 'og:url', content: 'https://zsdevweb.fr/services' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://zsdevweb.fr/services' },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Services de développement web',
+        itemListElement: services.map((s, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'Service',
+            name: s.title,
+            description: s.description,
+            provider: {
+              '@type': 'ProfessionalService',
+              name: 'Zsdevweb',
+              url: 'https://zsdevweb.fr',
+            },
+          },
+        })),
+      }),
+    },
+  ],
+})
 </script>

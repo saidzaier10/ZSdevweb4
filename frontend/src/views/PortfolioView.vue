@@ -14,9 +14,24 @@
         </div>
 
         <div v-else-if="projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div v-for="project in projects" :key="project.id" class="card group hover:shadow-xl transition-all duration-300">
+          <RouterLink
+            v-for="project in projects"
+            :key="project.id"
+            :to="{ name: 'portfolio-detail', params: { slug: project.slug } }"
+            class="card group hover:shadow-xl transition-all duration-300 block"
+          >
             <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl aspect-video mb-4 overflow-hidden">
-              <img v-if="project.image" :src="project.image" :alt="project.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <picture v-if="project.image">
+                <source v-if="project.image_webp" :srcset="project.image_webp" type="image/webp" />
+                <img
+                  :src="project.image"
+                  :alt="`Projet ${project.title} — réalisation web Zsdevweb`"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  width="400"
+                  height="225"
+                />
+              </picture>
               <div v-else class="w-full h-full flex items-center justify-center">
                 <span class="text-4xl">💻</span>
               </div>
@@ -29,15 +44,10 @@
                 {{ tech }}
               </span>
             </div>
-            <div class="flex gap-3">
-              <a v-if="project.url" :href="project.url" target="_blank" rel="noopener" class="text-sm text-primary-600 font-medium hover:underline">
-                Voir le site →
-              </a>
-              <a v-if="project.github_url" :href="project.github_url" target="_blank" rel="noopener" class="text-sm text-gray-500 hover:text-gray-700">
-                GitHub
-              </a>
-            </div>
-          </div>
+            <span class="text-sm text-primary-600 font-medium group-hover:underline">
+              Voir le projet →
+            </span>
+          </RouterLink>
         </div>
 
         <!-- État vide avec démos -->
@@ -69,24 +79,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { portfolioApi } from '@/api/portfolio.js'
+import { useApiCache } from '@/composables/useApiCache.js'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useHead } from '@unhead/vue'
 
-const projects = ref([])
-const loading = ref(true)
+import { computed } from 'vue'
 
-onMounted(async () => {
-  try {
-    const { data } = await portfolioApi.getProjects()
-    projects.value = data.results || data
-  } catch { projects.value = [] }
-  finally { loading.value = false }
-})
+const { data: projectsData, loading } = useApiCache('portfolio:list', portfolioApi.getProjects)
+const projects = computed(() => projectsData.value ?? [])
 
 const demoProjects = [
   { title: 'Boutique Bio en ligne', description: 'E-commerce Vue.js + Django avec paiement Stripe. +40% de ventes dès le premier mois.', bg: 'bg-green-100', emoji: '🌿', stack: ['Vue.js', 'Django', 'Stripe', 'PostgreSQL'] },
   { title: 'CRM Immobilier', description: 'Application web métier pour agence immobilière. Gestion des biens, clients et rendez-vous.', bg: 'bg-blue-100', emoji: '🏠', stack: ['Vue.js 3', 'Django REST', 'Redis', 'Docker'] },
   { title: 'SaaS RH', description: 'Plateforme de gestion des ressources humaines avec tableaux de bord et automatisations.', bg: 'bg-purple-100', emoji: '👥', stack: ['Nuxt.js', 'Django', 'PostgreSQL', 'Celery'] },
 ]
+
+useHead({
+  title: 'Portfolio & Réalisations Web sur la Métropole Lilloise | Zsdevweb',
+  meta: [
+    { name: 'description', content: 'Découvrez les projets de création de site web et d\'applications développés par Zsdevweb. Nos réalisations pour des entreprises autour de Mouvaux, Lille, Roubaix et Tourcoing.' },
+    { property: 'og:title', content: 'Portfolio Web — Zsdevweb' },
+    { property: 'og:description', content: 'Nos derniers projets digitaux sur-mesure pour TPE et PME.' }
+  ]
+})
 </script>

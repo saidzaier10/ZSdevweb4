@@ -11,9 +11,25 @@
 
     <div class="max-w-5xl mx-auto px-4 py-8">
 
-      <!-- Loading -->
-      <div v-if="loading" class="flex justify-center py-16">
-        <LoadingSpinner />
+      <!-- Skeleton loading -->
+      <div v-if="loading" class="grid gap-4 md:grid-cols-2" aria-label="Chargement des projets" aria-busy="true">
+        <div v-for="i in 4" :key="i" class="card space-y-4">
+          <div class="flex items-start justify-between">
+            <div class="space-y-2 flex-1">
+              <SkeletonLoader height="h-5" width="w-40" />
+              <SkeletonLoader height="h-3" width="w-28" />
+            </div>
+            <SkeletonLoader height="h-5" width="w-20" rounded="rounded-full" />
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between">
+              <SkeletonLoader height="h-3" width="w-20" />
+              <SkeletonLoader height="h-3" width="w-10" />
+            </div>
+            <SkeletonLoader height="h-2" rounded="rounded-full" />
+          </div>
+          <SkeletonLoader height="h-4" width="w-48" />
+        </div>
       </div>
 
       <!-- Non connecté -->
@@ -40,11 +56,43 @@
         <RouterLink to="/devis" class="btn-primary inline-flex">Demander un devis</RouterLink>
       </div>
 
-      <!-- Liste des projets -->
+      <!-- Filtres + recherche -->
       <div v-else>
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+          <!-- Recherche -->
+          <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              v-model="search"
+              type="search"
+              placeholder="Rechercher un projet..."
+              class="input-field pl-9 py-2.5 text-sm"
+              aria-label="Rechercher un projet"
+            />
+          </div>
+          <!-- Filtre statut -->
+          <select v-model="filterStatus" class="input-field py-2.5 text-sm sm:w-48" aria-label="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">{{ label }}</option>
+          </select>
+        </div>
+
+        <!-- Résultat filtré vide -->
+        <div v-if="filteredProjects.length === 0" class="text-center py-12 text-gray-400 dark:text-gray-600">
+          <svg class="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Aucun projet ne correspond à votre recherche.
+          <button @click="search = ''; filterStatus = ''" class="block mx-auto mt-2 text-sm text-primary-600 hover:underline">
+            Effacer les filtres
+          </button>
+        </div>
+
         <div class="grid gap-4 md:grid-cols-2">
           <div
-            v-for="project in projects"
+            v-for="project in filteredProjects"
             :key="project.uuid"
             @click="$router.push(`/espace-client/projets/${project.uuid}`)"
             class="card cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5"
@@ -55,9 +103,7 @@
                 <h3 class="font-bold text-gray-900 text-lg">{{ project.title }}</h3>
                 <p class="text-sm text-gray-400 mt-0.5">Mis à jour {{ formatDate(project.updated_at) }}</p>
               </div>
-              <span :class="statusClass(project.status)" class="badge">
-                {{ project.status_display }}
-              </span>
+              <StatusBadge :status="project.status" :label="project.status_display" :color-map="PROJECT_STATUS_COLORS" />
             </div>
 
             <!-- Barre de progression -->
@@ -90,15 +136,44 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { clientApi } from '@/api/client.js'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import { useHead } from '@unhead/vue'
+import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
+import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
+
+useHead({
+  title: 'Espace client | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
 
 const authStore = useAuthStore()
 const projects = ref([])
 const loading = ref(true)
+const search = ref('')
+const filterStatus = ref('')
+
+const STATUS_LABELS = {
+  briefing:    'Briefing',
+  design:      'Design',
+  development: 'Développement',
+  review:      'Révision',
+  delivered:   'Livré',
+  maintenance: 'Maintenance',
+}
+
+const filteredProjects = computed(() => {
+  return projects.value.filter(p => {
+    const matchSearch = !search.value || p.title.toLowerCase().includes(search.value.toLowerCase())
+    const matchStatus = !filterStatus.value || p.status === filterStatus.value
+    return matchSearch && matchStatus
+  })
+})
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) { loading.value = false; return }
@@ -111,19 +186,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-const STATUS_COLORS = {
-  briefing:    'bg-gray-100 text-gray-600',
-  design:      'bg-purple-100 text-purple-700',
-  development: 'bg-blue-100 text-blue-700',
-  review:      'bg-amber-100 text-amber-700',
-  delivered:   'bg-green-100 text-green-700',
-  maintenance: 'bg-cyan-100 text-cyan-700',
-}
-
-function statusClass(status) {
-  return STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-600'
-}
 
 function progressColor(pct) {
   if (pct >= 80) return 'bg-green-500'

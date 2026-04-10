@@ -11,6 +11,8 @@ from services.lead_service import LeadService
 class ContactRequestCreateView(generics.CreateAPIView):
     serializer_class = ContactRequestSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'contact_create'
 
     @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True))
     def post(self, request, *args, **kwargs):

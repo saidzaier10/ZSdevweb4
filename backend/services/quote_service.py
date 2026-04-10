@@ -35,13 +35,23 @@ class QuoteService:
         from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
 
         # 1. Charger les FK
-        project_type = ProjectType.objects.get(pk=validated_data['project_type_id'])
+        from rest_framework.exceptions import ValidationError
+        try:
+            project_type = ProjectType.objects.get(pk=validated_data['project_type_id'])
+        except ProjectType.DoesNotExist:
+            raise ValidationError({'project_type_id': 'Type de projet invalide.'})
         design_option = None
         if validated_data.get('design_option_id'):
-            design_option = DesignOption.objects.get(pk=validated_data['design_option_id'])
+            try:
+                design_option = DesignOption.objects.get(pk=validated_data['design_option_id'])
+            except DesignOption.DoesNotExist:
+                raise ValidationError({'design_option_id': 'Option design invalide.'})
         complexity = None
         if validated_data.get('complexity_id'):
-            complexity = ComplexityLevel.objects.get(pk=validated_data['complexity_id'])
+            try:
+                complexity = ComplexityLevel.objects.get(pk=validated_data['complexity_id'])
+            except ComplexityLevel.DoesNotExist:
+                raise ValidationError({'complexity_id': 'Niveau de complexité invalide.'})
         option_ids = validated_data.get('option_ids', [])
         options = list(SupplementaryOption.objects.filter(pk__in=option_ids)) if option_ids else []
 
@@ -89,9 +99,19 @@ class QuoteService:
         """
         from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
 
-        project_type = ProjectType.objects.get(pk=data['project_type_id'])
-        design_option = DesignOption.objects.get(pk=data['design_option_id']) if data.get('design_option_id') else None
-        complexity = ComplexityLevel.objects.get(pk=data['complexity_id']) if data.get('complexity_id') else None
+        from rest_framework.exceptions import ValidationError
+        try:
+            project_type = ProjectType.objects.get(pk=data['project_type_id'])
+        except ProjectType.DoesNotExist:
+            raise ValidationError({'project_type_id': 'Type de projet invalide.'})
+        try:
+            design_option = DesignOption.objects.get(pk=data['design_option_id']) if data.get('design_option_id') else None
+        except DesignOption.DoesNotExist:
+            raise ValidationError({'design_option_id': 'Option design invalide.'})
+        try:
+            complexity = ComplexityLevel.objects.get(pk=data['complexity_id']) if data.get('complexity_id') else None
+        except ComplexityLevel.DoesNotExist:
+            raise ValidationError({'complexity_id': 'Niveau de complexité invalide.'})
         option_ids = data.get('option_ids', [])
         options = list(SupplementaryOption.objects.filter(pk__in=option_ids)) if option_ids else []
 

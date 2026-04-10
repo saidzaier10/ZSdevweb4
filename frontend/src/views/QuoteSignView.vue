@@ -33,6 +33,9 @@
 
       <!-- Formulaire de signature -->
       <div v-else-if="quoteInfo && !signed && !rejected">
+        <!-- Breadcrumb -->
+        <Breadcrumb :crumbs="[{ label: 'Accueil', to: '/' }, { label: 'Signature du devis' }]" />
+
         <!-- En-tête -->
         <div class="text-center mb-8">
           <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -103,6 +106,14 @@
             Je souhaite refuser ce devis
           </button>
 
+          <!-- Erreur de signature -->
+          <div v-if="signError" class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm" role="alert">
+            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ signError }}
+          </div>
+
           <!-- Formulaire de refus -->
           <div v-if="showRejectForm" class="card border-red-100 bg-red-50">
             <p class="text-sm font-medium text-red-700 mb-3">Motif du refus (optionnel)</p>
@@ -163,7 +174,17 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/api/axios.js'
+import { useHead } from '@unhead/vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import { formatPrice } from '@/utils/formatters.js'
+
+useHead({
+  title: 'Signer votre devis | Zsdevweb',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
+})
 
 const route = useRoute()
 const uuid = route.params.uuid
@@ -180,10 +201,11 @@ const showRejectForm = ref(false)
 const submitting = ref(false)
 const signed = ref(false)
 const rejected = ref(false)
+const signError = ref('')
 
 onMounted(async () => {
   try {
-    const { data } = await api.get(`/quotes/${uuid}/sign/?token=${token}`)
+    const { data } = await api.get(`/api/v1/quotes/${uuid}/sign/?token=${token}`)
     if (data.valid) {
       quoteInfo.value = data
     } else {
@@ -210,7 +232,7 @@ onMounted(async () => {
 async function sign(action) {
   submitting.value = true
   try {
-    await api.post(`/quotes/${uuid}/sign/`, {
+    await api.post(`/api/v1/quotes/${uuid}/sign/`, {
       token,
       action,
       signature_name: signatureName.value,
@@ -222,17 +244,13 @@ async function sign(action) {
       rejected.value = true
     }
   } catch (e) {
-    alert(e.response?.data?.detail || 'Une erreur est survenue.')
+    signError.value = e.response?.data?.detail || 'Une erreur est survenue. Veuillez réessayer.'
   } finally {
     submitting.value = false
   }
 }
 
-function formatPrice(value) {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
-  }).format(value)
-}
+
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'

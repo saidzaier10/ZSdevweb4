@@ -14,6 +14,13 @@
         <p class="text-gray-500">Je vous répondrai dans les 24h. À bientôt !</p>
       </div>
 
+      <div v-if="errorMsg" class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm" role="alert">
+        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        {{ errorMsg }}
+      </div>
+
       <form v-else @submit.prevent="submit" class="card space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <BaseInput v-model="form.name" label="Nom complet" required />
@@ -46,20 +53,32 @@ import { ref, reactive } from 'vue'
 import { contactApi } from '@/api/contact.js'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useHead } from '@unhead/vue'
 
 const form = reactive({ name: '', email: '', phone: '', company: '', subject: 'project', message: '' })
 const loading = ref(false)
 const sent = ref(false)
+const errorMsg = ref('')
 
 async function submit() {
   loading.value = true
+  errorMsg.value = ''
   try {
     await contactApi.send(form)
     sent.value = true
   } catch (e) {
-    alert('Une erreur est survenue. Veuillez réessayer.')
+    errorMsg.value = e.response?.data?.detail || 'Une erreur est survenue. Veuillez réessayer.'
   } finally {
     loading.value = false
   }
 }
+
+useHead({
+  title: 'Contactez Zsdevweb — Devis et Création Web à Mouvaux / Lille',
+  meta: [
+    { name: 'description', content: 'Un projet de création de site internet ou d\'application sur la métropole lilloise (Mouvaux, Roubaix, Tourcoing) ? Contactez-moi pour en discuter.' },
+    { property: 'og:title', content: 'Contactez Zsdevweb' },
+    { property: 'og:description', content: 'Un projet sur la métropole lilloise ? Contactez-moi pour en discuter.' }
+  ]
+})
 </script>

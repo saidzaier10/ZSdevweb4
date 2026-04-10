@@ -1,6 +1,6 @@
 import api from './axios.js'
 
 export const clientApi = {
-  getProjects: () => api.get('/client/projects/'),
-  getProject: (uuid) => api.get(`/client/projects/${uuid}/`),
+  getProjects: () => api.get('/api/v1/client/projects/'),
+  getProject: (uuid) => api.get(`/api/v1/client/projects/${uuid}/`),
 }

@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 from django.core.cache import cache
 from django.db import connection
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import sitemaps
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 
@@ -67,6 +69,7 @@ def readiness_check(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('api/v1/health/', health_check, name='health'),
     path('api/v1/health/liveness/', liveness_check, name='health-liveness'),
     path('api/v1/health/readiness/', readiness_check, name='health-readiness'),
@@ -88,12 +91,10 @@ if settings.DEBUG:
         path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         path('api/v1/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     ]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
     urlpatterns += [
         path('api/v1/schema/', staff_member_required(SpectacularAPIView.as_view()), name='schema'),
         path('api/v1/docs/', staff_member_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'),
         path('api/v1/redoc/', staff_member_required(SpectacularRedocView.as_view(url_name='schema')), name='redoc'),
     ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
