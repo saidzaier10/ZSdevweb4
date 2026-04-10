@@ -66,11 +66,11 @@ ZSdevweb4/
 | Sécurité | 9/10 | JWT cookie HttpOnly, throttling spécifique, Sentry, pre-commit |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
-| Tests & Qualité | 7.5/10 | Tests API + Celery + Vitest stores/composables |
+| Tests & Qualité | 8.5/10 | 108 tests passent — API, Celery, Vitest, health, security, docs |
 | Frontend (UX/DX) | 8/10 | Cache API, composables, Vitest, manque TypeScript |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
-| **GLOBAL** | **8/10** | |
+| **GLOBAL** | **8.5/10** | |
 
 ---
 
@@ -91,7 +91,7 @@ ZSdevweb4/
 - **Fichier :** `frontend/src/stores/auth.js` + `frontend/src/api/axios.js`
 - **Problème :** `localStorage.setItem('access_token', ...)` vulnérable XSS
 - **Fix recommandé :** refresh_token en cookie HttpOnly, access_token en mémoire
-- **Statut :** ❌ Non corrigé (refactor important, à planifier séparément)
+- **Statut :** ✅ Corrigé — refresh_token HttpOnly, access_token en mémoire Pinia, withCredentials
 
 ---
 
@@ -256,6 +256,9 @@ script-src 'self' https://js.stripe.com;
 | 2026-04-10 | Phase 3 — Tests Celery (18 tests, ALWAYS_EAGER, factories) | ✅ Fait |
 | 2026-04-10 | Phase 3 — Tests Vitest (useApiCache + authStore, 15 tests) | ✅ Fait |
 | 2026-04-10 | Architecture — drf-spectacular (Swagger + ReDoc en DEBUG) | ✅ Fait |
+| 2026-04-10 | Phase 1 — JWT localStorage → cookie HttpOnly + mémoire Pinia | ✅ Fait |
+| 2026-04-10 | Tests — 108/108 passent (health, security, docs, celery, quote service) | ✅ Fait |
+| 2026-04-10 | Bugfixes — drf_spectacular doublon, ScopedRateThrottle manquant, related_name quotes | ✅ Fait |
 | | Phase 2 — SEO : SSR/pre-rendering | ❌ En attente |
 | | Phase 3 — Tests E2E Playwright | ❌ En attente |
 | | Phase 4 — Paiement Stripe | ❌ En attente |
@@ -264,9 +267,10 @@ script-src 'self' https://js.stripe.com;
 
 ### Prochaines étapes recommandées
 
-1. **Tests E2E Playwright** (qualité) — Parcours devis wizard + signature + espace client
-2. **Module payments/** (paiement) — Intégration Stripe (étape majeure suivante)
+1. **Module payments/** (paiement) — Intégration Stripe (**étape majeure suivante**)
    - `backend/payments/` : models Payment/PaymentIntent, stripe_service.py, webhooks
    - Frontend : page `/devis/:uuid/payer`, Stripe Checkout, pages succès/annulation
-3. **Migration TypeScript** (qualité) — Progressive, commencer par les composables
-4. **SSR / Pre-rendering** (SEO) — Décision architecture : vite-ssg ou Nuxt.js
+   - Adapter CSP nginx pour Stripe (font-src, connect-src, frame-src)
+2. **Tests E2E Playwright** (qualité) — Parcours devis wizard + signature + espace client
+3. **SSR / Pre-rendering** (SEO) — Décision architecture : vite-ssg ou Nuxt.js
+4. **Migration TypeScript** (qualité) — Progressive, commencer par les composables
