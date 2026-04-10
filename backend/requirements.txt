@@ -35,3 +35,9 @@ django-ratelimit==4.1.0
 celery==5.4.0
 django-celery-beat==2.6.0
 flower==2.0.1
+
+# Monitoring & Error tracking
+sentry-sdk[django]==2.20.0
+
+# API Documentation
+drf-spectacular==0.28.0

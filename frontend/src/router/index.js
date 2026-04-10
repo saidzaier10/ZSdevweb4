@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.js'
 
 const routes = [
   {
@@ -18,6 +19,12 @@ const routes = [
     name: 'portfolio',
     component: () => import('@/views/PortfolioView.vue'),
     meta: { title: 'Portfolio — Zsdevweb' },
+  },
+  {
+    path: '/portfolio/:slug',
+    name: 'portfolio-detail',
+    component: () => import('@/views/PortfolioDetailView.vue'),
+    meta: { title: 'Projet — Portfolio | Zsdevweb' },
   },
   {
     path: '/a-propos',
@@ -85,21 +92,27 @@ const routes = [
     component: () => import('@/views/ClientProjectView.vue'),
     meta: { title: 'Mon projet — Zsdevweb', requiresAuth: true },
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/views/NotFoundView.vue'),
+    meta: { title: 'Page introuvable — Zsdevweb' },
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, _from, savedPosition) {
     if (savedPosition) return savedPosition
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0, behavior: 'smooth' }
   },
 })
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('access_token')
-  if (to.meta.requiresAuth && !token) {
+router.beforeEach((to, _from, next) => {
+  const auth = useAuthStore()
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
     next({ name: 'login' })
   } else {
     next()

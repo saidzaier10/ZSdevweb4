@@ -1,8 +1,10 @@
 import secrets
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare
 from django.http import FileResponse
 
 from .models import Quote
@@ -16,6 +18,8 @@ from services.recommendation_service import RecommendationService
 
 class QuoteCreateView(APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'quote_create'
 
     def post(self, request):
         serializer = QuoteCreateSerializer(data=request.data)
@@ -144,7 +148,7 @@ class QuoteSignView(APIView):
         except Quote.DoesNotExist:
             return Response({'valid': False, 'detail': 'Devis non trouvé.'}, status=404)
 
-        if not token or quote.signature_token != token:
+        if not token or not constant_time_compare(str(token), str(quote.signature_token)):
             return Response({'valid': False, 'detail': 'Token invalide.'}, status=400)
 
         if quote.status in ('accepted', 'rejected', 'expired'):
@@ -178,7 +182,7 @@ class QuoteSignView(APIView):
             return Response({'detail': 'Devis non trouvé.'}, status=404)
 
         # Valider le token
-        if not token or quote.signature_token != token:
+        if not token or not constant_time_compare(str(token), str(quote.signature_token)):
             return Response({'detail': 'Token de signature invalide.'}, status=400)
 
         # Vérifier que le devis est signable
