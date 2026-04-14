@@ -85,6 +85,7 @@
                   <p class="text-xs text-gray-400">Connecté</p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ authStore.user?.email }}</p>
                 </div>
+                <RouterLink v-if="authStore.user?.is_staff" to="/tableau-de-bord" class="btn-secondary text-sm justify-center text-primary-600">Tableau de bord</RouterLink>
                 <RouterLink to="/espace-client" class="btn-secondary text-sm justify-center">Mes projets</RouterLink>
                 <RouterLink to="/espace-client/profil" class="btn-ghost text-sm justify-center">Mon profil</RouterLink>
                 <button @click="handleLogout" class="btn-ghost text-sm justify-center text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">

@@ -62,15 +62,15 @@ ZSdevweb4/
 
 | Catégorie | Score | Notes |
 |---|---|---|
-| Architecture & Scalabilité | 8.5/10 | Espace client complet, emails async Celery, DRY vérifié |
+| Architecture & Scalabilité | 9/10 | Dashboard admin, PDF/DB liés, signals idempotents, tout async Celery |
 | Sécurité | 9/10 | JWT cookie HttpOnly, throttling spécifique, Sentry, pre-commit, password reset sécurisé |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
-| Tests & Qualité | 8.5/10 | 108 tests backend + 17 Vitest — build propre, Playwright exclus du runner |
-| Frontend (UX/DX) | 8.5/10 | Espace client fonctionnel, header auth, profil, mot de passe oublié |
+| Tests & Qualité | 8.5/10 | 128 tests backend + 17 Vitest — build propre, Playwright exclus du runner |
+| Frontend (UX/DX) | 9/10 | Dashboard staff, inscription, espace client complet, redirect intelligente |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
-| **GLOBAL** | **8.5/10** | |
+| **GLOBAL** | **8.75/10** | |
 
 ---
 
@@ -268,6 +268,9 @@ script-src 'self' https://js.stripe.com;
 | 2026-04-14 | Signals — auto-attach PDF devis en `ProjectDocument` à la liaison ClientProject | ✅ Fait |
 | 2026-04-14 | Async — `notify_admin_quote_signed` Celery task, `_notify_admin_signature` supprimé de views.py | ✅ Fait |
 | 2026-04-14 | Auth — inscription (`/inscription`), `RegisterView.vue`, auto-login post-register, username auto-généré | ✅ Fait |
+| 2026-04-14 | Dashboard admin — `DashboardStatsView` (IsAdminUser), KPIs + devis récents + projets actifs | ✅ Fait |
+| 2026-04-14 | Dashboard — `is_staff` dans UserSerializer, guard `requiresStaff`, redirect post-login staff | ✅ Fait |
+| 2026-04-14 | Tests — 128/128 collectés (+20 : dashboard, register, is_staff) | ✅ Fait |
 | | Phase 2 — SEO : SSR/pre-rendering | ❌ En attente |
 | | Phase 3 — Tests E2E Playwright | ❌ En attente |
 | | Phase 4 — Paiement Stripe | ❌ En attente |

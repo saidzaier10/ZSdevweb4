@@ -73,7 +73,13 @@ async function handleLogin() {
   try {
     await authStore.login(email.value, password.value)
     const redirect = route.query.redirect
-    router.push(redirect && redirect.startsWith('/') ? redirect : '/espace-client')
+    if (redirect && redirect.startsWith('/')) {
+      router.push(redirect)
+    } else if (authStore.user?.is_staff) {
+      router.push('/tableau-de-bord')
+    } else {
+      router.push('/espace-client')
+    }
   } catch (e) {
     errorMsg.value = e.response?.data?.detail || 'Identifiants incorrects.'
   } finally {

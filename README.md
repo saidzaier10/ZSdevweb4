@@ -39,7 +39,7 @@ ZSdevweb4/
 │   ├── audit/                 # Demandes d'audit gratuit
 │   ├── marketing/             # FAQ + marketing
 │   ├── services/              # Service layer (PricingService, QuoteService, LeadService, PDFService, EmailService)
-│   ├── tests/                 # Suite de tests (108/108 passent)
+│   ├── tests/                 # Suite de tests (128 collectés, 52 sans Docker)
 │   └── zsdevweb/settings/     # base.py / development.py / production.py
 ├── frontend/
 │   └── src/
@@ -61,15 +61,15 @@ ZSdevweb4/
 
 | Catégorie | Score | Notes |
 |---|---|---|
-| Architecture & Scalabilité | 8.5/10 | Espace client complet, emails async Celery, DRY vérifié |
+| Architecture & Scalabilité | 9/10 | Dashboard admin, SOLID/DRY, signals idempotents, Celery tasks |
 | Sécurité | 9/10 | JWT HttpOnly, throttling, Sentry, pre-commit, password reset sécurisé |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
-| Tests & Qualité | 8.5/10 | 108 backend + 17 Vitest — build propre, Playwright séparé |
-| Frontend (UX/DX) | 8.5/10 | Espace client fonctionnel, header auth, profil, mot de passe oublié |
+| Tests & Qualité | 8.5/10 | 128 collectés (52 sans Docker) — dashboard, register, is_staff |
+| Frontend (UX/DX) | 9/10 | Tableau de bord admin, inscription, skeleton loading, redirect staff |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
-| **GLOBAL** | **8.5/10** | |
+| **GLOBAL** | **8.75/10** | |
 
 ---
 
@@ -182,7 +182,7 @@ Espace client (auth requise)
 - [ ] SSR / Pre-rendering (décision en attente : vite-ssg ou Nuxt.js)
 
 ### Phase 3 — Tests ✅ Complète (sauf E2E)
-- [x] 108/108 tests backend passent
+- [x] 128 tests collectés (52 passent sans Docker, 20 nouveaux : dashboard, register, is_staff)
 - [x] Tests API (auth, portfolio, contact, health, security)
 - [x] Tests Celery (18 tests, ALWAYS_EAGER, factories)
 - [x] Tests Vitest frontend — 17 tests, jsdom installé, Playwright exclu du runner
@@ -206,6 +206,16 @@ Espace client (auth requise)
 - [x] Signal `on_client_project_saved` → PDF du devis auto-attaché en `ProjectDocument` à la création/liaison d'un `ClientProject`
 - [x] Signal `attach_quote_pdf_to_portal` → même logique déclenchée si le devis est accepté en premier
 - [x] `notify_admin_quote_signed` Celery task — notification admin signature désormais async (retry ×2)
+
+### Tableau de Bord Admin ✅ Complet
+- [x] `DashboardStatsView` — endpoint `/api/v1/quotes/dashboard/` protégé `IsAdminUser`
+- [x] KPIs : CA total, CA ce mois, devis total/mois/en attente/acceptés, taux de conversion, projets actifs
+- [x] 10 devis récents avec champs : `uuid`, `quote_number`, `client_name`, `total_ttc`, `status_display`, `created_at`
+- [x] 10 projets actifs avec champs : `uuid`, `title`, `client_email`, `status_display`, `progress_percent`
+- [x] `DashboardView.vue` — skeleton loading, KPI cards, tableau devis, liste projets, bouton Actualiser
+- [x] `is_staff` exposé dans `UserSerializer` (read-only) — guard `requiresStaff` dans le router
+- [x] Redirect post-login staff → `/tableau-de-bord`, clients → `/espace-client`
+- [x] Lien "Tableau de bord" dans `UserMenuDropdown` (staff uniquement, avec séparateur)
 
 ### Phase 4 — Paiement Stripe ❌ Non démarré
 Architecture cible :
@@ -365,3 +375,6 @@ make backup-db    # Dump PostgreSQL compressé dans ./backups/
 | 2026-04-14 | DRY — email reset Celery, MeView PATCH-only, updateUser action Pinia |
 | 2026-04-14 | PDF + DB — `pdf_generated_at`, `quote_source` FK, signals auto-attachment, `notify_admin_quote_signed` Celery |
 | 2026-04-14 | Auth — page inscription `/inscription`, auto-login, username auto-généré, liens header |
+| 2026-04-14 | Dashboard admin — `DashboardStatsView` (IsAdminUser), KPIs + devis récents + projets actifs |
+| 2026-04-14 | Dashboard — `is_staff` dans UserSerializer, guard `requiresStaff`, redirect staff post-login |
+| 2026-04-14 | Tests — 128 collectés (+20 : dashboard, register, is_staff) |

@@ -10,8 +10,8 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'phone', 'company')
-        read_only_fields = ('id', 'email')
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'phone', 'company', 'is_staff')
+        read_only_fields = ('id', 'email', 'is_staff')
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):

@@ -277,6 +277,84 @@ class PricePreviewView(APIView):
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class DashboardStatsView(APIView):
+    """
+    Tableau de bord admin : KPIs, devis récents, projets actifs.
+    Accès réservé aux membres du staff (is_staff=True).
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        from django.db.models import Sum, Count, Avg
+        from django.utils import timezone
+        from client_portal.models import ClientProject
+
+        now = timezone.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        all_quotes = Quote.objects.all()
+        accepted = all_quotes.filter(status=Quote.STATUS_ACCEPTED)
+        pending  = all_quotes.filter(status__in=[Quote.STATUS_DRAFT, Quote.STATUS_SENT, Quote.STATUS_VIEWED])
+
+        total        = all_quotes.count()
+        total_accepted = accepted.count()
+        revenue_total = accepted.aggregate(s=Sum('total_ttc'))['s'] or 0
+        revenue_month = accepted.filter(created_at__gte=month_start).aggregate(s=Sum('total_ttc'))['s'] or 0
+
+        active_statuses = ['briefing', 'design', 'development', 'review']
+        projects_active = ClientProject.objects.filter(status__in=active_statuses).count()
+
+        recent_quotes = (
+            all_quotes
+            .select_related('project_type')
+            .order_by('-created_at')[:10]
+        )
+
+        active_projects = (
+            ClientProject.objects
+            .select_related('client')
+            .filter(status__in=active_statuses)
+            .order_by('-updated_at')[:10]
+        )
+
+        return Response({
+            'kpis': {
+                'quotes_total':     total,
+                'quotes_this_month': all_quotes.filter(created_at__gte=month_start).count(),
+                'quotes_pending':   pending.count(),
+                'quotes_accepted':  total_accepted,
+                'conversion_rate':  round(total_accepted / total * 100, 1) if total else 0,
+                'revenue_total':    str(revenue_total),
+                'revenue_this_month': str(revenue_month),
+                'projects_active':  projects_active,
+            },
+            'recent_quotes': [
+                {
+                    'uuid':           str(q.uuid),
+                    'quote_number':   q.quote_number,
+                    'client_name':    q.client_name,
+                    'client_company': q.client_company,
+                    'total_ttc':      str(q.total_ttc),
+                    'status':         q.status,
+                    'status_display': q.get_status_display(),
+                    'created_at':     q.created_at.isoformat(),
+                }
+                for q in recent_quotes
+            ],
+            'active_projects': [
+                {
+                    'uuid':             str(p.uuid),
+                    'title':            p.title,
+                    'client_email':     p.client.email,
+                    'status':           p.status,
+                    'status_display':   p.get_status_display(),
+                    'progress_percent': p.progress_percent,
+                }
+                for p in active_projects
+            ],
+        })
+
+
 # ---- Helpers ----
 
 def _is_token_valid(provided_token: str, expected_token: str) -> bool:

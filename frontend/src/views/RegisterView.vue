@@ -127,7 +127,7 @@ async function handleRegister() {
     await authApi.register(form)
     // Connexion automatique après inscription
     await authStore.login(form.email, form.password)
-    router.push('/espace-client')
+    router.push(authStore.user?.is_staff ? '/tableau-de-bord' : '/espace-client')
   } catch (e) {
     const data = e.response?.data
     if (data) {

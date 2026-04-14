@@ -99,6 +99,12 @@ const routes = [
     meta: { title: 'Nouveau mot de passe — Zsdevweb' },
   },
   {
+    path: '/tableau-de-bord',
+    name: 'dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+    meta: { title: 'Tableau de bord — Zsdevweb', requiresStaff: true },
+  },
+  {
     path: '/espace-client',
     name: 'client-portal',
     component: () => import('@/views/ClientPortalView.vue'),
@@ -136,11 +142,13 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ name: 'login', query: { redirect: to.fullPath } })
-  } else {
-    next()
+  if (to.meta.requiresStaff) {
+    if (!auth.isAuthenticated) return next({ name: 'login', query: { redirect: to.fullPath } })
+    if (!auth.user?.is_staff)  return next({ name: 'home' })
+  } else if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return next({ name: 'login', query: { redirect: to.fullPath } })
   }
+  next()
 })
 
 // Titles are managed by @unhead/vue in each component
