@@ -23,6 +23,7 @@
       <DashboardKpiCards :loading="loading" :kpi-cards="kpiCards" />
       <DashboardQuotesTable :loading="loading" :quotes="stats?.recent_quotes ?? []" />
       <DashboardProjectsList :loading="loading" :projects="stats?.active_projects ?? []" />
+      <DashboardAuditsList :loading="loading" :audits="stats?.recent_audits ?? []" />
     </div>
   </div>
 </template>
@@ -35,6 +36,7 @@ import { useFormatters } from '@/composables/useFormatters.js'
 import DashboardKpiCards from '@/components/dashboard/DashboardKpiCards.vue'
 import DashboardQuotesTable from '@/components/dashboard/DashboardQuotesTable.vue'
 import DashboardProjectsList from '@/components/dashboard/DashboardProjectsList.vue'
+import DashboardAuditsList from '@/components/dashboard/DashboardAuditsList.vue'
 
 useHead({
   title: 'Tableau de bord | Zsdevweb',
@@ -53,6 +55,7 @@ const kpiCards = computed(() => {
     { label: 'Devis ce mois',      value: k?.quotes_this_month ?? '—',               sub: k ? `${k.quotes_total} au total` : null },
     { label: 'Taux de conversion', value: k ? `${k.conversion_rate} %`         : '—', sub: k ? `${k.quotes_accepted} acceptés` : null },
     { label: 'Projets actifs',     value: k?.projects_active ?? '—',                 sub: k ? `${k.quotes_pending} devis en attente` : null },
+    { label: 'Audits en attente',  value: k?.audits_pending  ?? '—',                 sub: null },
   ]
 })
 

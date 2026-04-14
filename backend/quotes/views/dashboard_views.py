@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from quotes.models import Quote
 from client_portal.models import ClientProject
+from audit.models import AuditRequest
 
 ACTIVE_STATUSES = ['briefing', 'design', 'development', 'review']
 
@@ -34,6 +35,8 @@ class DashboardStatsView(APIView):
             .filter(status__in=ACTIVE_STATUSES)
             .order_by('-updated_at')[:10]
         )
+        recent_audits   = AuditRequest.objects.order_by('-created_at')[:10]
+        audits_pending  = AuditRequest.objects.filter(is_processed=False).count()
 
         return Response({
             'kpis': {
@@ -45,6 +48,7 @@ class DashboardStatsView(APIView):
                 'revenue_total':      str(accepted.aggregate(s=Sum('total_ttc'))['s'] or 0),
                 'revenue_this_month': str(accepted.filter(created_at__gte=month_start).aggregate(s=Sum('total_ttc'))['s'] or 0),
                 'projects_active':    ClientProject.objects.filter(status__in=ACTIVE_STATUSES).count(),
+                'audits_pending':     audits_pending,
             },
             'recent_quotes': [
                 {
@@ -69,5 +73,18 @@ class DashboardStatsView(APIView):
                     'progress_percent': p.progress_percent,
                 }
                 for p in active_projects
+            ],
+            'recent_audits': [
+                {
+                    'id':           a.id,
+                    'name':         a.name,
+                    'email':        a.email,
+                    'company':      a.company,
+                    'site_url':     a.site_url,
+                    'objectives':   a.objectives,
+                    'is_processed': a.is_processed,
+                    'created_at':   a.created_at.isoformat(),
+                }
+                for a in recent_audits
             ],
         })
