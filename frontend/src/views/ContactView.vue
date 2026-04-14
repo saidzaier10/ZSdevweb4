@@ -37,8 +37,8 @@
             </div>
             <BaseInput v-model="form.phone" label="Téléphone" type="tel" />
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Sujet</label>
-              <select v-model="form.subject" class="input-field">
+              <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Sujet</label>
+              <select id="subject" v-model="form.subject" class="input-field">
                 <option value="project">Nouveau projet</option>
                 <option value="quote">Demande de devis</option>
                 <option value="partnership">Partenariat</option>
@@ -46,8 +46,8 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Message *</label>
-              <textarea v-model="form.message" rows="5" required class="input-field resize-none" placeholder="Décrivez votre projet ou votre demande..." />
+              <label for="message" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Message *</label>
+              <textarea id="message" v-model="form.message" rows="5" required class="input-field resize-none" placeholder="Décrivez votre projet ou votre demande..." />
             </div>
             <BaseButton type="submit" :loading="loading" class="w-full justify-center">
               Envoyer le message

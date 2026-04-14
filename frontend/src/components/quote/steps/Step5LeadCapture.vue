@@ -38,8 +38,8 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Budget estimé</label>
-        <select v-model="form.budgetRange" class="input-field">
+        <label for="budget_range" class="block text-sm font-medium text-gray-700 mb-1">Budget estimé</label>
+        <select id="budget_range" v-model="form.budgetRange" class="input-field">
           <option value="">Je ne sais pas encore</option>
           <option value="< 1000">Moins de 1 000 €</option>
           <option value="1000-3000">1 000 € — 3 000 €</option>

@@ -116,8 +116,9 @@
 
           <!-- Formulaire de refus -->
           <div v-if="showRejectForm" class="card border-red-100 bg-red-50">
-            <p class="text-sm font-medium text-red-700 mb-3">Motif du refus (optionnel)</p>
+            <label for="reject_reason" class="block text-sm font-medium text-red-700 mb-3">Motif du refus (optionnel)</label>
             <textarea
+              id="reject_reason"
               v-model="rejectReason"
               rows="3"
               placeholder="Budget, délai, changement de projet..."

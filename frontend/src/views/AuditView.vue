@@ -34,8 +34,8 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Problèmes actuels identifiés</label>
-          <textarea v-model="form.current_issues" rows="3" class="input-field resize-none" placeholder="Ex: Mon site est lent, je ne génère pas de leads..." />
+          <label for="current_issues" class="block text-sm font-medium text-gray-700 mb-1">Problèmes actuels identifiés</label>
+          <textarea id="current_issues" v-model="form.current_issues" rows="3" class="input-field resize-none" placeholder="Ex: Mon site est lent, je ne génère pas de leads..." />
         </div>
         <BaseButton type="submit" :loading="loading" class="w-full justify-center">
           Demander mon audit gratuit →

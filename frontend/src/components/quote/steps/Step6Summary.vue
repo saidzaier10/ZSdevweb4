@@ -43,10 +43,11 @@
 
       <!-- Description -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="project_description" class="block text-sm font-medium text-gray-700 mb-1">
           Description du projet <span class="text-gray-400">(facultatif)</span>
         </label>
         <textarea
+          id="project_description"
           v-model="description"
           rows="4"
           placeholder="Décrivez votre projet en quelques mots, vos objectifs, les fonctionnalités souhaitées..."
