@@ -38,9 +38,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-let _counter = 0
+import { ref, getCurrentInstance } from 'vue'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -55,6 +53,6 @@ const props = defineProps({
 
 defineEmits(['update:modelValue'])
 
-const stableId = props.inputId ?? `password-${++_counter}`
+const stableId = props.inputId ?? `password-${getCurrentInstance().uid}`
 const visible  = ref(false)
 </script>

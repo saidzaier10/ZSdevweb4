@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-let _counter = 0
+import { getCurrentInstance } from 'vue'
 
 const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
@@ -45,6 +45,5 @@ const props = defineProps({
 
 defineEmits(['update:modelValue', 'blur'])
 
-// ID stable : priorité à la prop explicite, sinon compteur créé une seule fois à l'instanciation
-const stableId = props.inputId ?? `input-${++_counter}`
+const stableId = props.inputId ?? `input-${getCurrentInstance().uid}`
 </script>
