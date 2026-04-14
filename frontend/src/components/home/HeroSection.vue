@@ -64,7 +64,7 @@
 
     <!-- Bottom wave -->
     <div class="absolute bottom-0 left-0 right-0">
-      <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0V60Z" fill="white"/>
       </svg>
     </div>

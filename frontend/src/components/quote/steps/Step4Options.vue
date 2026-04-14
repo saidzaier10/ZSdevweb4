@@ -20,7 +20,7 @@
             'w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 border-2 transition-colors',
             isSelected(option.id) ? 'bg-primary-600 border-primary-600' : 'border-gray-300'
           ]" aria-hidden="true">
-            <svg v-if="isSelected(option.id)" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-if="isSelected(option.id)" class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
             </svg>
           </div>

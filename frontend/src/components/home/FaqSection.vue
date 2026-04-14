@@ -15,7 +15,7 @@
             class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
           >
             <span class="font-medium text-gray-900">{{ item.q }}</span>
-            <svg :class="['w-5 h-5 text-gray-400 transition-transform', open === idx ? 'rotate-180' : '']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg :class="['w-5 h-5 text-gray-400 transition-transform', open === idx ? 'rotate-180' : '']" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>

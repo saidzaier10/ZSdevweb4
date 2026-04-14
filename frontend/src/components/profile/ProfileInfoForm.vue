@@ -32,7 +32,7 @@
       </div>
 
       <div v-if="msg" class="flex items-center gap-2 text-sm" :class="success ? 'text-green-600' : 'text-red-600'" role="alert">
-        <svg v-if="success" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg v-if="success" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
         {{ msg }}

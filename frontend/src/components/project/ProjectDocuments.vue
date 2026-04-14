@@ -16,7 +16,7 @@
           <div class="font-semibold text-gray-900 truncate">{{ doc.name }}</div>
           <div class="text-xs text-gray-400">{{ docTypeLabel(doc.doc_type) }} · {{ formatDate(doc.uploaded_at) }}</div>
         </div>
-        <svg class="w-4 h-4 text-gray-300 ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-gray-300 ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
       </a>
