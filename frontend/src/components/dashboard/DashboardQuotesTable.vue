@@ -15,7 +15,7 @@
       <div class="overflow-x-auto -mx-5">
         <table class="w-full text-sm">
           <thead>
-            <tr class="text-left text-xs font-medium text-gray-400 uppercase tracking-wide border-b border-gray-100 dark:border-gray-700">
+            <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100 dark:border-gray-700">
               <th class="pb-3 pl-5 pr-4">Numéro</th>
               <th class="pb-3 pr-4">Client</th>
               <th class="pb-3 pr-4 text-right">Montant TTC</th>
@@ -33,7 +33,7 @@
               <td class="py-3 pl-5 pr-4 font-mono text-xs text-gray-600 dark:text-gray-300">{{ q.quote_number }}</td>
               <td class="py-3 pr-4">
                 <p class="font-medium text-gray-900 dark:text-white">{{ q.client_name }}</p>
-                <p v-if="q.client_company" class="text-xs text-gray-400">{{ q.client_company }}</p>
+                <p v-if="q.client_company" class="text-xs text-gray-500">{{ q.client_company }}</p>
               </td>
               <td class="py-3 pr-4 text-right font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                 {{ formatPrice(q.total_ttc) }}
@@ -41,14 +41,14 @@
               <td class="py-3 pr-4">
                 <StatusBadge :status="q.status" :label="q.status_display" :color-map="QUOTE_STATUS_COLORS" />
               </td>
-              <td class="py-3 pr-5 text-gray-400 whitespace-nowrap">{{ formatDateShort(q.created_at) }}</td>
+              <td class="py-3 pr-5 text-gray-500 whitespace-nowrap">{{ formatDateShort(q.created_at) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </template>
 
-    <p v-else class="text-sm text-gray-400 py-4 text-center">Aucun devis pour le moment.</p>
+    <p v-else class="text-sm text-gray-500 py-4 text-center">Aucun devis pour le moment.</p>
   </div>
 </template>
 

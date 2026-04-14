@@ -5,7 +5,7 @@
       <!-- Loading -->
       <div v-if="loading" class="card text-center py-16">
         <LoadingSpinner />
-        <p class="text-gray-400 mt-4">Vérification du lien...</p>
+        <p class="text-gray-500 mt-4">Vérification du lien...</p>
       </div>
 
       <!-- Erreur de token -->
@@ -16,7 +16,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Lien invalide</h2>
-        <p class="text-gray-500">{{ tokenError }}</p>
+        <p class="text-gray-600">{{ tokenError }}</p>
         <RouterLink to="/contact" class="btn-primary mt-6 inline-flex">Nous contacter</RouterLink>
       </div>
 
@@ -28,7 +28,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Devis {{ alreadySignedStatus }}</h2>
-        <p class="text-gray-500">Ce devis a déjà été traité.</p>
+        <p class="text-gray-600">Ce devis a déjà été traité.</p>
       </div>
 
       <!-- Formulaire de signature -->
@@ -44,7 +44,7 @@
             </svg>
           </div>
           <h1 class="text-2xl font-bold text-gray-900">Signature du devis</h1>
-          <p class="text-gray-500 mt-1">{{ quoteInfo.quote_number }}</p>
+          <p class="text-gray-600 mt-1">{{ quoteInfo.quote_number }}</p>
         </div>
 
         <!-- Récapitulatif -->
@@ -52,15 +52,15 @@
           <h3 class="font-semibold text-gray-900 mb-4">Récapitulatif</h3>
           <div class="space-y-3 text-sm">
             <div class="flex justify-between">
-              <span class="text-gray-500">Client</span>
+              <span class="text-gray-600">Client</span>
               <span class="font-medium">{{ quoteInfo.client_name }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-500">Montant TTC</span>
+              <span class="text-gray-600">Montant TTC</span>
               <span class="font-bold text-xl text-primary-600">{{ formatPrice(quoteInfo.total_ttc) }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-500">Valable jusqu'au</span>
+              <span class="text-gray-600">Valable jusqu'au</span>
               <span class="font-medium">{{ formatDate(quoteInfo.valid_until) }}</span>
             </div>
           </div>
@@ -83,7 +83,7 @@
             :placeholder="quoteInfo.client_name"
             class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
-          <p class="text-xs text-gray-400 mt-2">
+          <p class="text-xs text-gray-500 mt-2">
             En signant, vous acceptez les conditions générales de vente disponibles sur zsdevweb.fr/cgv.
           </p>
         </div>
@@ -101,7 +101,7 @@
 
           <button
             @click="showRejectForm = !showRejectForm"
-            class="w-full text-center text-sm text-gray-400 hover:text-red-500 transition-colors py-2"
+            class="w-full text-center text-sm text-gray-500 hover:text-red-500 transition-colors py-2"
           >
             Je souhaite refuser ce devis
           </button>
@@ -143,7 +143,7 @@
           </svg>
         </div>
         <h2 class="text-2xl font-bold text-gray-900 mb-2">Devis accepté !</h2>
-        <p class="text-gray-500 mb-6">
+        <p class="text-gray-600 mb-6">
           Merci {{ quoteInfo?.client_name }}. Votre devis a été signé avec succès.<br>
           Nous vous contacterons dans les 24h pour démarrer votre projet.
         </p>
@@ -163,7 +163,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Devis refusé</h2>
-        <p class="text-gray-500 mb-6">Merci pour votre retour. N'hésitez pas à nous recontacter si vous changez d'avis.</p>
+        <p class="text-gray-600 mb-6">Merci pour votre retour. N'hésitez pas à nous recontacter si vous changez d'avis.</p>
         <RouterLink to="/contact" class="btn-secondary inline-flex">Nous contacter</RouterLink>
       </div>
 

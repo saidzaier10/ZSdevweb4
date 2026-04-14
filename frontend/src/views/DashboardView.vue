@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Vue d'ensemble de l'activité</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Vue d'ensemble de l'activité</p>
         </div>
         <button @click="refresh" class="btn-ghost text-sm flex items-center gap-2" :disabled="loading">
           <svg class="w-4 h-4" :class="{ 'animate-spin': loading }" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

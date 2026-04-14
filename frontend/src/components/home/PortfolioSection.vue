@@ -29,7 +29,7 @@
                 height="270"
               />
             </picture>
-            <div v-else class="text-gray-400 text-center p-4">
+            <div v-else class="text-gray-500 text-center p-4">
               <svg class="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
@@ -37,7 +37,7 @@
             </div>
           </div>
           <h3 class="font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">{{ project.title }}</h3>
-          <p class="text-gray-500 text-sm mb-3">{{ project.tagline }}</p>
+          <p class="text-gray-600 text-sm mb-3">{{ project.tagline }}</p>
           <div class="flex flex-wrap gap-1">
             <span v-for="tech in (project.tech_stack || []).slice(0, 3)" :key="tech" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
               {{ tech }}
@@ -47,7 +47,7 @@
       </div>
 
       <div v-else class="text-center py-16">
-        <p class="text-gray-400">Portfolio en cours de mise à jour...</p>
+        <p class="text-gray-500">Portfolio en cours de mise à jour...</p>
       </div>
 
       <div class="text-center mt-10">

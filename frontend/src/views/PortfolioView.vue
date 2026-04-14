@@ -37,7 +37,7 @@
               </div>
             </div>
             <h3 class="font-bold text-gray-900 text-lg mb-1">{{ project.title }}</h3>
-            <p class="text-gray-500 text-sm mb-3">{{ project.tagline }}</p>
+            <p class="text-gray-600 text-sm mb-3">{{ project.tagline }}</p>
             <div class="flex flex-wrap gap-1 mb-4">
               <span v-for="tech in (project.tech_stack || []).slice(0, 4)" :key="tech"
                 class="text-xs bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md font-medium">
@@ -52,14 +52,14 @@
 
         <!-- État vide avec démos -->
         <div v-else class="space-y-8">
-          <p class="text-center text-gray-400 mb-8">Portfolio en cours de mise à jour. Voici un aperçu de mes réalisations :</p>
+          <p class="text-center text-gray-500 mb-8">Portfolio en cours de mise à jour. Voici un aperçu de mes réalisations :</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div v-for="demo in demoProjects" :key="demo.title" class="card">
               <div :class="['rounded-xl aspect-video mb-4 flex items-center justify-center', demo.bg]">
                 <span class="text-4xl">{{ demo.emoji }}</span>
               </div>
               <h3 class="font-bold text-gray-900 mb-1">{{ demo.title }}</h3>
-              <p class="text-gray-500 text-sm mb-3">{{ demo.description }}</p>
+              <p class="text-gray-600 text-sm mb-3">{{ demo.description }}</p>
               <div class="flex flex-wrap gap-1">
                 <span v-for="tech in demo.stack" :key="tech" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ tech }}</span>
               </div>

@@ -10,7 +10,7 @@
           </svg>
         </div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Lien invalide</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           Ce lien de réinitialisation est invalide ou a expiré.
         </p>
         <RouterLink to="/mot-de-passe-oublie" class="btn-primary inline-flex">Faire une nouvelle demande</RouterLink>
@@ -24,7 +24,7 @@
           </svg>
         </div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Mot de passe mis à jour</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
         </p>
         <RouterLink to="/connexion" class="btn-primary inline-flex">Se connecter</RouterLink>
@@ -34,7 +34,7 @@
       <template v-else>
         <div class="mb-6">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nouveau mot de passe</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Choisissez un mot de passe d'au moins 8 caractères.</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Choisissez un mot de passe d'au moins 8 caractères.</p>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">

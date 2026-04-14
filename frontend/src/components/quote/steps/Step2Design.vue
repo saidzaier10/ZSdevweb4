@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Quel niveau de design ?</h2>
-    <p class="text-gray-500 mb-8">Le design impacte directement l'image de votre entreprise et les conversions.</p>
+    <p class="text-gray-600 mb-8">Le design impacte directement l'image de votre entreprise et les conversions.</p>
 
     <div class="grid grid-cols-1 gap-4">
       <button
@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-gray-900">{{ option.name }}</div>
-            <div class="text-gray-500 text-sm mt-1">{{ option.description }}</div>
+            <div class="text-gray-600 text-sm mt-1">{{ option.description }}</div>
           </div>
           <div class="text-right ml-4 flex-shrink-0">
             <span v-if="parseFloat(option.price_supplement) === 0" class="text-green-600 font-bold">Inclus</span>

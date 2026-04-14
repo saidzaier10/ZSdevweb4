@@ -23,10 +23,10 @@
 
           <div class="mb-6">
             <h3 class="font-bold text-gray-900 text-xl mb-1">{{ tier.name }}</h3>
-            <p class="text-gray-500 text-sm">{{ tier.description }}</p>
+            <p class="text-gray-600 text-sm">{{ tier.description }}</p>
             <div class="mt-4">
               <span class="text-4xl font-bold text-gray-900">{{ tier.price }}</span>
-              <span class="text-gray-500 text-sm ml-1">à partir de</span>
+              <span class="text-gray-600 text-sm ml-1">à partir de</span>
             </div>
           </div>
 

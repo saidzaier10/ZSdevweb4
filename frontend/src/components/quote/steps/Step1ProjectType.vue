@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Quel type de projet ?</h2>
-    <p class="text-gray-500 mb-8">Sélectionnez la catégorie qui correspond le mieux à votre besoin.</p>
+    <p class="text-gray-600 mb-8">Sélectionnez la catégorie qui correspond le mieux à votre besoin.</p>
 
     <div v-if="catalogStore.loading" class="flex justify-center py-12">
       <LoadingSpinner />
@@ -13,7 +13,7 @@
         :key="category.id"
         class="space-y-3"
       >
-        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">
           {{ category.name }}
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -29,12 +29,12 @@
             ]"
           >
             <div class="font-semibold text-gray-900 text-sm">{{ type.name }}</div>
-            <div class="text-gray-500 text-xs mt-1">{{ type.description }}</div>
+            <div class="text-gray-600 text-xs mt-1">{{ type.description }}</div>
             <div class="mt-3 flex items-center justify-between">
               <span class="text-primary-600 font-bold text-sm">
                 À partir de {{ formatPrice(type.base_price) }}
               </span>
-              <span class="text-gray-400 text-xs">{{ type.min_days }}–{{ type.max_days }}j</span>
+              <span class="text-gray-500 text-xs">{{ type.min_days }}–{{ type.max_days }}j</span>
             </div>
           </button>
         </div>

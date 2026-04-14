@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Vos coordonnées</h2>
-    <p class="text-gray-500 mb-8">Pour recevoir votre devis personnalisé par email.</p>
+    <p class="text-gray-600 mb-8">Pour recevoir votre devis personnalisé par email.</p>
 
     <form @submit.prevent class="space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -15,7 +15,7 @@
             </svg>
             <span v-else>{{ i + 1 }}</span>
           </div>
-          <span class="text-xs text-center mt-1.5 text-gray-500 leading-tight">{{ step.label }}</span>
+          <span class="text-xs text-center mt-1.5 text-gray-600 leading-tight">{{ step.label }}</span>
         </div>
         <div
           v-if="i < steps.length - 1"
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Barre % -->
-    <div class="flex justify-between text-sm text-gray-500 mb-2">
+    <div class="flex justify-between text-sm text-gray-600 mb-2">
       <span>Progression globale</span>
       <span class="font-bold text-gray-900">{{ progress }}%</span>
     </div>
@@ -40,15 +40,15 @@
     <!-- Dates -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
       <div v-if="startedAt">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Démarrage</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Démarrage</div>
         <div class="font-semibold text-gray-900">{{ formatDate(startedAt) }}</div>
       </div>
       <div v-if="estimatedDelivery">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Livraison prévue</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Livraison prévue</div>
         <div class="font-semibold text-gray-900">{{ formatDate(estimatedDelivery) }}</div>
       </div>
       <div v-if="deliveredAt">
-        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Livré le</div>
+        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Livré le</div>
         <div class="font-semibold text-green-600">{{ formatDate(deliveredAt) }}</div>
       </div>
     </div>
@@ -81,7 +81,7 @@ function isStepDone(key) {
 function stepClass(key) {
   if (props.status === key)   return 'bg-primary-600 text-white ring-4 ring-primary-100'
   if (isStepDone(key))        return 'bg-primary-500 text-white'
-  return 'bg-gray-100 text-gray-400'
+  return 'bg-gray-100 text-gray-500'
 }
 
 function formatDate(d) {

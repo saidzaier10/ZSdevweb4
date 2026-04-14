@@ -24,7 +24,7 @@
       </svg>
       {{ error }}
     </p>
-    <p v-else-if="hint" :id="`${stableId}-hint`" class="text-sm text-gray-500">{{ hint }}</p>
+    <p v-else-if="hint" :id="`${stableId}-hint`" class="text-sm text-gray-600">{{ hint }}</p>
   </div>
 </template>
 

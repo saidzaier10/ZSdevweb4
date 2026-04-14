@@ -13,7 +13,7 @@
         {{ displayName }}
       </span>
       <svg
-        class="w-4 h-4 text-gray-400 transition-transform"
+        class="w-4 h-4 text-gray-500 transition-transform"
         :class="{ 'rotate-180': open }"
         fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"
       >
@@ -36,7 +36,7 @@
         role="menu"
       >
         <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
-          <p class="text-xs text-gray-400">Connecté en tant que</p>
+          <p class="text-xs text-gray-500">Connecté en tant que</p>
           <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ user?.email }}</p>
         </div>
 

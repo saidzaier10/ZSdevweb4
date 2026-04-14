@@ -39,7 +39,7 @@
         </button>
       </form>
 
-      <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-6">
+      <p class="text-sm text-center text-gray-600 dark:text-gray-400 mt-6">
         Pas encore de compte ?
         <RouterLink to="/inscription" class="text-primary-600 hover:underline font-medium">Créer un compte</RouterLink>
       </p>

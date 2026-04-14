@@ -16,7 +16,7 @@
               <span class="text-white font-bold text-xl">{{ idx + 1 }}</span>
             </div>
             <h3 class="font-bold text-gray-900 mb-2">{{ step.title }}</h3>
-            <p class="text-gray-500 text-sm">{{ step.description }}</p>
+            <p class="text-gray-600 text-sm">{{ step.description }}</p>
           </div>
         </div>
       </div>

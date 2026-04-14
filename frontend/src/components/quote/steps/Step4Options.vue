@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Options supplémentaires</h2>
-    <p class="text-gray-500 mb-8">Enrichissez votre projet avec ces fonctionnalités (toutes facultatives).</p>
+    <p class="text-gray-600 mb-8">Enrichissez votre projet avec ces fonctionnalités (toutes facultatives).</p>
 
     <div class="grid grid-cols-1 gap-3">
       <button
@@ -26,19 +26,19 @@
           </div>
           <div class="flex-1">
             <div class="font-semibold text-gray-900 text-sm">{{ option.name }}</div>
-            <div class="text-gray-500 text-xs mt-0.5">{{ option.description }}</div>
+            <div class="text-gray-600 text-xs mt-0.5">{{ option.description }}</div>
           </div>
           <div class="text-right flex-shrink-0">
             <span class="font-bold text-sm text-primary-600">
               +{{ formatPrice(option.price) }}
             </span>
-            <span v-if="option.is_recurring" class="text-xs text-gray-400 block">/mois</span>
+            <span v-if="option.is_recurring" class="text-xs text-gray-500 block">/mois</span>
           </div>
         </div>
       </button>
     </div>
 
-    <p class="text-sm text-gray-400 mt-4 text-center">Vous pouvez passer cette étape si vous n'avez pas de besoins spécifiques.</p>
+    <p class="text-sm text-gray-500 mt-4 text-center">Vous pouvez passer cette étape si vous n'avez pas de besoins spécifiques.</p>
   </div>
 </template>
 

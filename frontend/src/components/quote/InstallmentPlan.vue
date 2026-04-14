@@ -1,6 +1,6 @@
 <template>
   <div :class="compact ? 'mt-2' : 'card mt-6'">
-    <h4 :class="compact ? 'text-xs font-semibold text-gray-500 mb-2' : 'font-semibold text-gray-900 mb-4'">
+    <h4 :class="compact ? 'text-xs font-semibold text-gray-600 mb-2' : 'font-semibold text-gray-900 mb-4'">
       Paiement en 3 fois
     </h4>
     <div class="space-y-2">

@@ -82,7 +82,7 @@
             <div class="pt-3 flex flex-col gap-2">
               <template v-if="authStore.isAuthenticated">
                 <div class="px-4 py-2 border border-gray-100 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <p class="text-xs text-gray-400">Connecté</p>
+                  <p class="text-xs text-gray-500">Connecté</p>
                   <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ authStore.user?.email }}</p>
                 </div>
                 <RouterLink v-if="authStore.user?.is_staff" to="/tableau-de-bord" class="btn-secondary text-sm justify-center text-primary-600">Tableau de bord</RouterLink>

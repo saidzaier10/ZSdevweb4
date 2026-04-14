@@ -1,6 +1,6 @@
 <template>
   <nav aria-label="Fil d'Ariane" class="mb-6">
-    <ol class="flex items-center gap-1 text-sm text-gray-500 flex-wrap">
+    <ol class="flex items-center gap-1 text-sm text-gray-600 flex-wrap">
       <li v-for="(crumb, idx) in crumbs" :key="idx" class="flex items-center gap-1">
         <span v-if="idx > 0" class="text-gray-300" aria-hidden="true">/</span>
         <RouterLink

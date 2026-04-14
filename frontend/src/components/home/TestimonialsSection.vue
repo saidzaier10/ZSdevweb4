@@ -18,7 +18,7 @@
             </div>
             <div>
               <div class="font-semibold text-gray-900 text-sm">{{ t.name }}</div>
-              <div class="text-gray-500 text-xs">{{ t.company }}</div>
+              <div class="text-gray-600 text-xs">{{ t.company }}</div>
             </div>
           </div>
         </div>

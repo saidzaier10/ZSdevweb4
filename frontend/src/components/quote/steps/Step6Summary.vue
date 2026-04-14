@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Résumé de votre projet</h2>
-    <p class="text-gray-500 mb-6">Vérifiez les informations avant d'envoyer votre demande.</p>
+    <p class="text-gray-600 mb-6">Vérifiez les informations avant d'envoyer votre demande.</p>
 
     <!-- Récapitulatif projet -->
     <div class="space-y-4">
@@ -9,19 +9,19 @@
         <h3 class="font-semibold text-gray-900 mb-3">Votre projet</h3>
         <dl class="space-y-2">
           <div class="flex justify-between text-sm">
-            <dt class="text-gray-500">Type</dt>
+            <dt class="text-gray-600">Type</dt>
             <dd class="font-medium">{{ projectType?.name || '—' }}</dd>
           </div>
           <div class="flex justify-between text-sm">
-            <dt class="text-gray-500">Design</dt>
+            <dt class="text-gray-600">Design</dt>
             <dd class="font-medium">{{ designOption?.name || '—' }}</dd>
           </div>
           <div class="flex justify-between text-sm">
-            <dt class="text-gray-500">Complexité</dt>
+            <dt class="text-gray-600">Complexité</dt>
             <dd class="font-medium">{{ complexity?.name || '—' }}</dd>
           </div>
           <div v-if="selectedOptions.length > 0" class="flex justify-between text-sm">
-            <dt class="text-gray-500">Options</dt>
+            <dt class="text-gray-600">Options</dt>
             <dd class="font-medium text-right">{{ selectedOptions.map(o => o.name).join(', ') }}</dd>
           </div>
         </dl>
@@ -31,11 +31,11 @@
         <h3 class="font-semibold text-gray-900 mb-3">Vos coordonnées</h3>
         <dl class="space-y-2">
           <div class="flex justify-between text-sm">
-            <dt class="text-gray-500">Nom</dt>
+            <dt class="text-gray-600">Nom</dt>
             <dd class="font-medium">{{ quoteStore.formData.clientName }}</dd>
           </div>
           <div class="flex justify-between text-sm">
-            <dt class="text-gray-500">Email</dt>
+            <dt class="text-gray-600">Email</dt>
             <dd class="font-medium">{{ quoteStore.formData.clientEmail }}</dd>
           </div>
         </dl>
@@ -44,7 +44,7 @@
       <!-- Description -->
       <div>
         <label for="project_description" class="block text-sm font-medium text-gray-700 mb-1">
-          Description du projet <span class="text-gray-400">(facultatif)</span>
+          Description du projet <span class="text-gray-500">(facultatif)</span>
         </label>
         <textarea
           id="project_description"

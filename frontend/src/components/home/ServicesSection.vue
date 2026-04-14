@@ -18,7 +18,7 @@
             <component :is="service.icon" :class="['w-6 h-6', service.iconColor]" />
           </div>
           <h3 class="font-bold text-gray-900 text-lg mb-2">{{ service.title }}</h3>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">{{ service.description }}</p>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ service.description }}</p>
           <ul class="space-y-1">
             <li
               v-for="point in service.points"

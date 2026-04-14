@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-3">Estimez votre projet en 30 secondes</h1>
-        <p class="text-gray-500 text-lg">Obtenez une fourchette de prix immédiate, sans inscription.</p>
+        <p class="text-gray-600 text-lg">Obtenez une fourchette de prix immédiate, sans inscription.</p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -17,7 +17,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-3">Type de projet</label>
               <div class="space-y-4">
                 <div v-for="cat in catalogStore.categories" :key="cat.id">
-                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{{ cat.name }}</p>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{{ cat.name }}</p>
                   <div class="grid grid-cols-1 gap-2">
                     <button
                       v-for="type in cat.project_types"
@@ -31,7 +31,7 @@
                       ]"
                     >
                       <span class="block">{{ type.name }}</span>
-                      <span class="text-xs text-gray-400">à partir de {{ formatPrice(type.base_price) }}</span>
+                      <span class="text-xs text-gray-500">à partir de {{ formatPrice(type.base_price) }}</span>
                     </button>
                   </div>
                 </div>
@@ -66,16 +66,16 @@
 
             <div>
               <div class="text-5xl font-bold text-primary-600">{{ formatPrice(estimate.total_ttc) }}</div>
-              <div class="text-sm text-gray-400 mt-1">TTC — TVA 20% incluse</div>
+              <div class="text-sm text-gray-500 mt-1">TTC — TVA 20% incluse</div>
             </div>
 
             <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
               <div class="flex justify-between">
-                <span class="text-gray-500">HT</span>
+                <span class="text-gray-600">HT</span>
                 <span class="font-medium">{{ formatPrice(estimate.subtotal_ht) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-500">TVA 20%</span>
+                <span class="text-gray-600">TVA 20%</span>
                 <span class="font-medium">{{ formatPrice(estimate.vat) }}</span>
               </div>
               <div class="flex justify-between font-semibold border-t border-gray-200 pt-2">
@@ -84,7 +84,7 @@
               </div>
             </div>
 
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-gray-600">
               Délai estimé : <strong>{{ selectedType?.min_days }}–{{ selectedType?.max_days }} jours</strong>
             </div>
 
@@ -107,7 +107,7 @@
             <RouterLink to="/devis" class="btn-primary w-full justify-center">
               Obtenir un devis précis et gratuit →
             </RouterLink>
-            <p class="text-xs text-gray-400">
+            <p class="text-xs text-gray-500">
               Cette estimation est indicative. Le devis final est gratuit et sans engagement.
             </p>
           </div>
@@ -118,7 +118,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <p class="text-gray-400">Sélectionnez un type de projet<br>pour voir l'estimation</p>
+            <p class="text-gray-500">Sélectionnez un type de projet<br>pour voir l'estimation</p>
           </div>
         </div>
       </div>

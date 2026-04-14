@@ -36,7 +36,7 @@
               <div v-for="value in values" :key="value.title" class="p-4 bg-gray-50 rounded-xl">
                 <div class="text-2xl mb-2">{{ value.emoji }}</div>
                 <h4 class="font-semibold text-gray-900 mb-1">{{ value.title }}</h4>
-                <p class="text-sm text-gray-500">{{ value.description }}</p>
+                <p class="text-sm text-gray-600">{{ value.description }}</p>
               </div>
             </div>
           </div>
@@ -46,7 +46,7 @@
               <h3 class="font-semibold text-gray-900 mb-4">En chiffres</h3>
               <dl class="space-y-3">
                 <div v-for="stat in stats" :key="stat.label" class="flex justify-between items-center">
-                  <dt class="text-gray-500 text-sm">{{ stat.label }}</dt>
+                  <dt class="text-gray-600 text-sm">{{ stat.label }}</dt>
                   <dd class="font-bold text-primary-600">{{ stat.value }}</dd>
                 </div>
               </dl>

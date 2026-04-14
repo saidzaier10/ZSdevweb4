@@ -1,7 +1,7 @@
 <template>
   <div class="animate-fade-in">
     <h2 class="text-2xl font-bold text-gray-900 mb-2">Niveau de complexité</h2>
-    <p class="text-gray-500 mb-8">Estimez le niveau de fonctionnalités dont vous avez besoin.</p>
+    <p class="text-gray-600 mb-8">Estimez le niveau de fonctionnalités dont vous avez besoin.</p>
 
     <div class="grid grid-cols-1 gap-4">
       <button
@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-gray-900">{{ level.name }}</div>
-            <div class="text-gray-500 text-sm mt-1">{{ level.description }}</div>
+            <div class="text-gray-600 text-sm mt-1">{{ level.description }}</div>
           </div>
           <div class="text-right ml-4">
             <span class="text-sm font-semibold text-gray-600">×{{ level.multiplier }}</span>

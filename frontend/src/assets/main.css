@@ -43,6 +43,6 @@
   }
 
   .section-subtitle {
-    @apply text-lg text-gray-500 mt-4 max-w-2xl dark:text-gray-400;
+    @apply text-lg text-gray-600 mt-4 max-w-2xl dark:text-gray-400;
   }
 }

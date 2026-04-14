@@ -9,7 +9,7 @@
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">
         Page introuvable
       </h1>
-      <p class="text-gray-500 dark:text-gray-400 mb-8">
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
         La page que vous recherchez n'existe pas ou a été déplacée.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">

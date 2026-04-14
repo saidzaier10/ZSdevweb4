@@ -10,7 +10,7 @@
           </svg>
         </div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Email envoyé</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
           Si cet email est enregistré, vous recevrez un lien de réinitialisation dans quelques minutes.
           Pensez à vérifier vos spams.
         </p>
@@ -21,7 +21,7 @@
       <template v-else>
         <div class="mb-6">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mot de passe oublié</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Entrez votre email, nous vous enverrons un lien de réinitialisation.
           </p>
         </div>
@@ -47,7 +47,7 @@
           </button>
         </form>
 
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
+        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-5">
           <RouterLink to="/connexion" class="text-primary-600 hover:underline">
             Retour à la connexion
           </RouterLink>

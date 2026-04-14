@@ -7,7 +7,7 @@
           100% Gratuit — Sans engagement
         </div>
         <h1 class="text-4xl font-bold text-gray-900 mb-3">Audit gratuit de votre site web</h1>
-        <p class="text-gray-500">Je vous remets un rapport d'audit complet sous 48h : performance, SEO, UX, conversions.</p>
+        <p class="text-gray-600">Je vous remets un rapport d'audit complet sous 48h : performance, SEO, UX, conversions.</p>
       </div>
 
       <div v-if="sent" class="card text-center py-12">
@@ -15,7 +15,7 @@
           <svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Demande reçue !</h2>
-        <p class="text-gray-500">Je vous enverrai votre rapport d'audit dans les 48h.</p>
+        <p class="text-gray-600">Je vous enverrai votre rapport d'audit dans les 48h.</p>
       </div>
 
       <form v-else @submit.prevent="submit" class="card space-y-5">

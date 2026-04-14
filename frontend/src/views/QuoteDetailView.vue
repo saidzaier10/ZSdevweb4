@@ -42,13 +42,13 @@
         <div class="card mb-6">
           <div class="flex items-start justify-between mb-6">
             <div>
-              <div class="text-sm text-gray-400 mb-1">Devis n°</div>
+              <div class="text-sm text-gray-500 mb-1">Devis n°</div>
               <div class="flex items-center gap-2">
                 <div class="text-2xl font-bold text-gray-900">{{ quote.quote_number }}</div>
                 <button
                   @click="copyQuoteNumber"
                   :title="copied ? 'Copié !' : 'Copier le numéro'"
-                  class="p-1.5 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                  class="p-1.5 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                   :aria-label="copied ? 'Numéro copié' : 'Copier le numéro de devis'"
                 >
                   <svg v-if="!copied" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -65,19 +65,19 @@
 
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <div class="text-gray-400">Client</div>
+              <div class="text-gray-500">Client</div>
               <div class="font-medium">{{ quote.client_name }}</div>
             </div>
             <div>
-              <div class="text-gray-400">Email</div>
+              <div class="text-gray-500">Email</div>
               <div class="font-medium">{{ quote.client_email }}</div>
             </div>
             <div>
-              <div class="text-gray-400">Projet</div>
+              <div class="text-gray-500">Projet</div>
               <div class="font-medium">{{ quote.project_type?.name }}</div>
             </div>
             <div>
-              <div class="text-gray-400">Valable jusqu'au</div>
+              <div class="text-gray-500">Valable jusqu'au</div>
               <div class="font-medium" :class="{ 'text-red-500': quote.is_expired }">
                 {{ formatDate(quote.valid_until) }}
               </div>
@@ -106,7 +106,7 @@
               <span>+{{ formatPrice(quote.options_total) }}</span>
             </div>
             <div v-if="quote.options?.length > 0" class="pl-4 space-y-1">
-              <div v-for="opt in quote.options" :key="opt.id" class="flex justify-between text-gray-400 text-xs">
+              <div v-for="opt in quote.options" :key="opt.id" class="flex justify-between text-gray-500 text-xs">
                 <span>↳ {{ opt.name }}</span>
                 <span>{{ formatPrice(opt.price) }}</span>
               </div>
@@ -119,7 +119,7 @@
               <span>Remise ({{ quote.discount_percent }}%)</span>
               <span>-{{ formatPrice(quote.discount_amount) }}</span>
             </div>
-            <div class="flex justify-between text-gray-500">
+            <div class="flex justify-between text-gray-600">
               <span>TVA {{ quote.vat_rate }}%</span>
               <span>+{{ formatPrice(quote.vat_amount) }}</span>
             </div>
@@ -142,7 +142,7 @@
                 <div class="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-bold">{{ idx + 1 }}</div>
                 <div>
                   <div class="font-medium text-sm text-gray-900">{{ item.label }}</div>
-                  <div class="text-xs text-gray-400">{{ item.timing }}</div>
+                  <div class="text-xs text-gray-500">{{ item.timing }}</div>
                 </div>
               </div>
               <span class="font-bold text-gray-900">{{ formatPrice(item.amount) }}</span>

@@ -4,7 +4,7 @@
     <div class="bg-white border-b border-gray-200">
       <div class="max-w-5xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold text-gray-900">Espace client</h1>
-        <p class="text-gray-500 mt-1">Suivez l'avancement de vos projets en temps réel.</p>
+        <p class="text-gray-600 mt-1">Suivez l'avancement de vos projets en temps réel.</p>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Connexion requise</h2>
-        <p class="text-gray-500 mb-6">Connectez-vous pour accéder à vos projets.</p>
+        <p class="text-gray-600 mb-6">Connectez-vous pour accéder à vos projets.</p>
         <RouterLink to="/connexion" class="btn-primary inline-flex">Se connecter</RouterLink>
       </div>
 
@@ -51,7 +51,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 mb-2">Aucun projet en cours</h2>
-        <p class="text-gray-500 mb-6">Démarrez votre premier projet en demandant un devis.</p>
+        <p class="text-gray-600 mb-6">Démarrez votre premier projet en demandant un devis.</p>
         <RouterLink to="/devis" class="btn-primary inline-flex">Demander un devis</RouterLink>
       </div>
 
@@ -70,7 +70,7 @@
           </select>
         </div>
 
-        <div v-if="filteredProjects.length === 0" class="text-center py-12 text-gray-400">
+        <div v-if="filteredProjects.length === 0" class="text-center py-12 text-gray-500">
           <svg class="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>

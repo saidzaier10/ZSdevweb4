@@ -5,7 +5,7 @@
       <!-- En-tête -->
       <div class="mb-10">
         <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-3">Contactez-moi</h1>
-        <p class="text-gray-500 dark:text-gray-400">Une question, un projet ? Je réponds sous 24h.</p>
+        <p class="text-gray-600 dark:text-gray-400">Une question, un projet ? Je réponds sous 24h.</p>
       </div>
 
       <!-- Succès -->
@@ -16,7 +16,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Message envoyé !</h2>
-        <p class="text-gray-500 dark:text-gray-400">Je vous répondrai dans les 24h. À bientôt !</p>
+        <p class="text-gray-600 dark:text-gray-400">Je vous répondrai dans les 24h. À bientôt !</p>
       </div>
 
       <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -86,8 +86,8 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">La Plaine Image</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">165 Bd de l'Égalité, 59200 Tourcoing</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Métropole lilloise</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">165 Bd de l'Égalité, 59200 Tourcoing</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Métropole lilloise</p>
               </div>
             </div>
 
@@ -111,8 +111,8 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-900 dark:text-white">Disponibilité</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Lun – Ven, 9h – 18h</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Réponse sous 24h</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Lun – Ven, 9h – 18h</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Réponse sous 24h</p>
               </div>
             </div>
           </div>

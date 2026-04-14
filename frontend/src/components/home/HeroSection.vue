@@ -32,7 +32,7 @@
         <div class="flex flex-wrap gap-8 mb-10">
           <div v-for="stat in stats" :key="stat.label">
             <div class="text-3xl font-bold text-white">{{ stat.value }}</div>
-            <div class="text-gray-400 text-sm">{{ stat.label }}</div>
+            <div class="text-gray-500 text-sm">{{ stat.label }}</div>
           </div>
         </div>
 
@@ -55,7 +55,7 @@
               class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-accent-500 border-2 border-gray-900"
             />
           </div>
-          <div class="text-sm text-gray-400">
+          <div class="text-sm text-gray-500">
             <span class="text-white font-semibold">+30 clients</span> font confiance à Zsdevweb
           </div>
         </div>

@@ -2,7 +2,7 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
     <div class="card w-full max-w-md">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">Créer un compte</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+      <p class="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
         Suivez l'avancement de votre projet en temps réel.
       </p>
 
@@ -75,7 +75,7 @@
         </button>
       </form>
 
-      <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-6">
+      <p class="text-sm text-center text-gray-600 dark:text-gray-400 mt-6">
         Déjà un compte ?
         <RouterLink to="/connexion" class="text-primary-600 hover:underline font-medium">Se connecter</RouterLink>
       </p>

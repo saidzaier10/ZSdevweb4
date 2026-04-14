@@ -6,13 +6,13 @@
     <div class="flex items-start justify-between mb-4">
       <div>
         <h3 class="font-bold text-gray-900 text-lg">{{ project.title }}</h3>
-        <p class="text-sm text-gray-400 mt-0.5">Mis à jour {{ formatDate(project.updated_at) }}</p>
+        <p class="text-sm text-gray-500 mt-0.5">Mis à jour {{ formatDate(project.updated_at) }}</p>
       </div>
       <StatusBadge :status="project.status" :label="project.status_display" :color-map="PROJECT_STATUS_COLORS" />
     </div>
 
     <div class="mb-3">
-      <div class="flex justify-between text-xs text-gray-500 mb-1.5">
+      <div class="flex justify-between text-xs text-gray-600 mb-1.5">
         <span>Progression</span>
         <span class="font-semibold">{{ project.progress_percent }}%</span>
       </div>
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div v-if="project.estimated_delivery" class="flex items-center gap-2 text-sm text-gray-500">
+    <div v-if="project.estimated_delivery" class="flex items-center gap-2 text-sm text-gray-600">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>

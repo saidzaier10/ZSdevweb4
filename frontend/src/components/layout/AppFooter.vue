@@ -47,14 +47,14 @@
       </div>
 
       <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p class="text-gray-500 text-sm">
+        <p class="text-gray-400 text-sm">
           © {{ new Date().getFullYear() }} Zsdevweb. Tous droits réservés.
         </p>
         <div class="flex gap-4">
-          <RouterLink to="/mentions-legales" class="text-gray-500 text-sm hover:text-white transition-colors">
+          <RouterLink to="/mentions-legales" class="text-gray-400 text-sm hover:text-white transition-colors">
             Mentions légales
           </RouterLink>
-          <RouterLink to="/contact" class="text-gray-500 text-sm hover:text-white transition-colors">
+          <RouterLink to="/contact" class="text-gray-400 text-sm hover:text-white transition-colors">
             Contact
           </RouterLink>
         </div>

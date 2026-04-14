@@ -9,7 +9,7 @@
       <!-- En-tête -->
       <div class="bg-white border-b border-gray-200">
         <div class="max-w-4xl mx-auto px-4 py-6">
-          <div class="flex items-center gap-2 text-sm text-gray-400 mb-3">
+          <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
             <RouterLink to="/espace-client" class="hover:text-primary-600">Espace client</RouterLink>
             <span>/</span>
             <span class="text-gray-600">{{ project.title }}</span>
@@ -17,7 +17,7 @@
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 class="text-2xl font-bold text-gray-900">{{ project.title }}</h1>
-              <p v-if="project.description" class="text-gray-500 mt-1">{{ project.description }}</p>
+              <p v-if="project.description" class="text-gray-600 mt-1">{{ project.description }}</p>
             </div>
             <div class="flex items-center gap-3">
               <a v-if="project.site_url" :href="project.site_url" target="_blank" class="btn-secondary text-sm inline-flex items-center gap-1.5">
@@ -71,7 +71,7 @@
         </svg>
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-2">Projet introuvable</h2>
-      <p class="text-gray-500 mb-6">Ce projet n'existe pas ou vous n'y avez pas accès.</p>
+      <p class="text-gray-600 mb-6">Ce projet n'existe pas ou vous n'y avez pas accès.</p>
       <RouterLink to="/espace-client" class="btn-primary inline-flex">Retour à l'espace client</RouterLink>
     </div>
 

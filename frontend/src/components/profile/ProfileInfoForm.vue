@@ -17,7 +17,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Email</label>
         <input :value="user?.email" type="email" class="input-field w-full opacity-60" disabled />
-        <p class="text-xs text-gray-400 mt-1">L'email ne peut pas être modifié.</p>
+        <p class="text-xs text-gray-500 mt-1">L'email ne peut pas être modifié.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

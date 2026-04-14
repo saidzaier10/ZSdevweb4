@@ -4,7 +4,7 @@
       <!-- En-tête -->
       <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-3">Obtenir un devis gratuit</h1>
-        <p class="text-gray-500 text-lg">Répondez à quelques questions et recevez votre devis personnalisé en quelques minutes.</p>
+        <p class="text-gray-600 text-lg">Répondez à quelques questions et recevez votre devis personnalisé en quelques minutes.</p>
       </div>
 
       <QuoteWizard @submitted="onSubmitted" />
@@ -18,22 +18,22 @@
         </svg>
       </div>
       <h2 class="text-3xl font-bold text-gray-900 mb-3">Demande reçue !</h2>
-      <p class="text-gray-500 text-lg mb-2">
+      <p class="text-gray-600 text-lg mb-2">
         Votre devis <strong>{{ quoteStore.submittedQuote?.quote_number }}</strong> a été créé.
       </p>
-      <p class="text-gray-500 mb-8">
+      <p class="text-gray-600 mb-8">
         Vous recevrez votre devis détaillé à <strong>{{ quoteStore.submittedQuote?.client_email }}</strong> sous 24h.
       </p>
 
       <!-- Récapitulatif prix -->
       <div v-if="quoteStore.submittedQuote" class="card max-w-sm mx-auto mb-8 text-left">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-gray-500">Total TTC</span>
+          <span class="text-gray-600">Total TTC</span>
           <span class="text-2xl font-bold text-primary-600">
             {{ formatPrice(quoteStore.submittedQuote.total_ttc) }}
           </span>
         </div>
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-gray-600">
           Valide jusqu'au {{ formatDate(quoteStore.submittedQuote.valid_until) }}
         </div>
       </div>

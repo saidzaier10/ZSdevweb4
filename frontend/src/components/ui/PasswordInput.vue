@@ -18,7 +18,7 @@
       <button
         type="button"
         @click="visible = !visible"
-        class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+        class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-600 dark:hover:text-gray-200"
         :aria-label="visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
         tabindex="-1"
       >

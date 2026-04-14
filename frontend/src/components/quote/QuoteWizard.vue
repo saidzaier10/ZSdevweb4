@@ -36,7 +36,7 @@
       </ol>
       <!-- Progression % sous les étapes sur mobile -->
       <div class="flex items-center justify-between mt-3 sm:hidden">
-        <span class="text-xs text-gray-500 dark:text-gray-400">Étape {{ store.currentStep }} / {{ store.TOTAL_STEPS }}</span>
+        <span class="text-xs text-gray-600 dark:text-gray-400">Étape {{ store.currentStep }} / {{ store.TOTAL_STEPS }}</span>
         <span class="text-xs font-semibold text-primary-600">{{ store.progress }}%</span>
       </div>
     </nav>
@@ -148,13 +148,13 @@ function navigateTo(step) {
 function stepCircleClass(step) {
   if (step === store.currentStep) return 'bg-primary-600 text-white ring-4 ring-primary-100 dark:ring-primary-900'
   if (isCompleted(step)) return 'bg-primary-500 text-white cursor-pointer hover:bg-primary-600 transition-colors'
-  return 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
+  return 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500'
 }
 
 function stepLabelClass(step) {
   if (step === store.currentStep) return 'text-primary-600 dark:text-primary-400'
   if (isCompleted(step)) return 'text-gray-600 dark:text-gray-300'
-  return 'text-gray-400 dark:text-gray-600'
+  return 'text-gray-500 dark:text-gray-600'
 }
 
 function handleNext() {

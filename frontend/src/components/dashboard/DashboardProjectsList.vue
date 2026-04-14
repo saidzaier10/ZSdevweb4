@@ -22,12 +22,12 @@
             <p class="font-medium text-gray-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">
               {{ p.title }}
             </p>
-            <p class="text-xs text-gray-400 truncate">{{ p.client_email }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ p.client_email }}</p>
           </div>
           <StatusBadge :status="p.status" :label="p.status_display" :color-map="PROJECT_STATUS_COLORS" />
           <div class="w-32 shrink-0">
             <div class="flex justify-between mb-1">
-              <span class="text-xs text-gray-400">{{ p.progress_percent }}%</span>
+              <span class="text-xs text-gray-500">{{ p.progress_percent }}%</span>
             </div>
             <div class="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
@@ -40,7 +40,7 @@
       </div>
     </template>
 
-    <p v-else class="text-sm text-gray-400 py-4 text-center">Aucun projet actif.</p>
+    <p v-else class="text-sm text-gray-500 py-4 text-center">Aucun projet actif.</p>
   </div>
 </template>
 

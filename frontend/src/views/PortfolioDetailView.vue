@@ -32,7 +32,7 @@
             </svg>
           </div>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Projet non trouvé</h2>
-          <p class="text-gray-500 mb-6">Ce projet n'existe pas ou a été retiré.</p>
+          <p class="text-gray-600 mb-6">Ce projet n'existe pas ou a été retiré.</p>
           <RouterLink to="/portfolio" class="btn-primary text-sm">← Retour au portfolio</RouterLink>
         </div>
 
@@ -129,7 +129,7 @@
                   </svg>
                   Code source GitHub
                 </a>
-                <p v-if="!project.url && !project.github_url" class="text-gray-400 dark:text-gray-500 text-sm italic">
+                <p v-if="!project.url && !project.github_url" class="text-gray-500 dark:text-gray-500 text-sm italic">
                   Projet confidentiel
                 </p>
               </div>

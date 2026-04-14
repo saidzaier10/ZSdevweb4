@@ -1,7 +1,7 @@
 <template>
   <button
     @click="$emit('toggle')"
-    class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+    class="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
     :aria-label="isDark ? 'Passer en mode clair' : 'Passer en mode sombre'"
   >
     <svg v-if="isDark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

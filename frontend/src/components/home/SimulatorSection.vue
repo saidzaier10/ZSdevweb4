@@ -53,8 +53,8 @@
             <div class="bg-white rounded-lg p-4 mt-4">
               <div class="text-center">
                 <div class="text-3xl font-bold text-green-600">{{ formatCurrency(results.roi12Months) }}</div>
-                <div class="text-sm text-gray-500">ROI sur 12 mois</div>
-                <div v-if="results.monthsToROI" class="text-xs text-gray-400 mt-1">
+                <div class="text-sm text-gray-600">ROI sur 12 mois</div>
+                <div v-if="results.monthsToROI" class="text-xs text-gray-500 mt-1">
                   Rentabilisé en {{ results.monthsToROI }} mois
                 </div>
               </div>

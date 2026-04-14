@@ -15,7 +15,7 @@
           <div class="card py-4 px-5">
             <div class="flex items-start justify-between gap-2">
               <h3 class="font-semibold text-gray-900">{{ update.title }}</h3>
-              <span class="text-xs text-gray-400 flex-shrink-0">{{ formatDate(update.created_at) }}</span>
+              <span class="text-xs text-gray-500 flex-shrink-0">{{ formatDate(update.created_at) }}</span>
             </div>
             <p class="text-sm text-gray-600 mt-1.5 leading-relaxed">{{ update.content }}</p>
           </div>
