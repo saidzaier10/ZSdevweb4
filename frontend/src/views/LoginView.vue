@@ -18,15 +18,12 @@
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
-          <input
-            id="password"
+          <PasswordInput
             v-model="password"
-            type="password"
+            label="Mot de passe"
+            input-id="password"
             required
             autocomplete="current-password"
-            class="input-field w-full"
-            placeholder="••••••••"
           />
         </div>
 
@@ -55,6 +52,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useHead } from '@unhead/vue'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 useHead({ title: 'Connexion — Zsdevweb' })
 

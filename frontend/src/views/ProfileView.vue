@@ -68,18 +68,27 @@
         <h2 class="font-bold text-gray-900 dark:text-white mb-5">Changer le mot de passe</h2>
 
         <form @submit.prevent="changePassword" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe actuel</label>
-            <input v-model="pwForm.current" type="password" required autocomplete="current-password" class="input-field w-full" placeholder="••••••••" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nouveau mot de passe</label>
-            <input v-model="pwForm.newPw" type="password" required minlength="8" autocomplete="new-password" class="input-field w-full" placeholder="8 caractères minimum" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmer</label>
-            <input v-model="pwForm.confirm" type="password" required minlength="8" autocomplete="new-password" class="input-field w-full" placeholder="••••••••" />
-          </div>
+          <PasswordInput
+            v-model="pwForm.current"
+            label="Mot de passe actuel"
+            required
+            autocomplete="current-password"
+          />
+          <PasswordInput
+            v-model="pwForm.newPw"
+            label="Nouveau mot de passe"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="8 caractères minimum"
+          />
+          <PasswordInput
+            v-model="pwForm.confirm"
+            label="Confirmer"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
 
           <div v-if="pwMsg" class="flex items-center gap-2 text-sm" :class="pwSuccess ? 'text-green-600' : 'text-red-600'" role="alert">
             <svg v-if="pwSuccess" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,6 +114,7 @@ import { reactive, ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { authApi } from '@/api/auth.js'
 import { useHead } from '@unhead/vue'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 useHead({
   title: 'Mon profil | Zsdevweb',

@@ -47,37 +47,26 @@
           <p v-if="errors.email" class="text-xs text-red-600 mt-1">{{ errors.email }}</p>
         </div>
 
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            required
-            minlength="8"
-            autocomplete="new-password"
-            class="input-field w-full"
-            :class="{ 'border-red-400': errors.password }"
-            placeholder="8 caractères minimum"
-          />
-          <p v-if="errors.password" class="text-xs text-red-600 mt-1">{{ errors.password }}</p>
-        </div>
+        <PasswordInput
+          v-model="form.password"
+          label="Mot de passe"
+          input-id="password"
+          required
+          minlength="8"
+          autocomplete="new-password"
+          placeholder="8 caractères minimum"
+          :error="errors.password"
+        />
 
-        <div>
-          <label for="password2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmer le mot de passe</label>
-          <input
-            id="password2"
-            v-model="form.password2"
-            type="password"
-            required
-            minlength="8"
-            autocomplete="new-password"
-            class="input-field w-full"
-            :class="{ 'border-red-400': errors.password2 }"
-            placeholder="••••••••"
-          />
-          <p v-if="errors.password2" class="text-xs text-red-600 mt-1">{{ errors.password2 }}</p>
-        </div>
+        <PasswordInput
+          v-model="form.password2"
+          label="Confirmer le mot de passe"
+          input-id="password2"
+          required
+          minlength="8"
+          autocomplete="new-password"
+          :error="errors.password2"
+        />
 
         <p v-if="errors.non_field" class="text-sm text-red-600" role="alert">{{ errors.non_field }}</p>
 
@@ -100,6 +89,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { authApi } from '@/api/auth.js'
 import { useHead } from '@unhead/vue'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 useHead({
   title: 'Créer un compte | Zsdevweb',

@@ -38,32 +38,22 @@
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nouveau mot de passe</label>
-            <input
-              id="password"
-              v-model="password"
-              type="password"
-              required
-              minlength="8"
-              autocomplete="new-password"
-              class="input-field w-full"
-              placeholder="••••••••"
-            />
-          </div>
-          <div>
-            <label for="password2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmer</label>
-            <input
-              id="password2"
-              v-model="password2"
-              type="password"
-              required
-              minlength="8"
-              autocomplete="new-password"
-              class="input-field w-full"
-              placeholder="••••••••"
-            />
-          </div>
+          <PasswordInput
+            v-model="password"
+            label="Nouveau mot de passe"
+            input-id="password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <PasswordInput
+            v-model="password2"
+            label="Confirmer"
+            input-id="password2"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
 
           <p v-if="errorMsg" class="text-sm text-red-600" role="alert">{{ errorMsg }}</p>
 
@@ -81,6 +71,7 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { authApi } from '@/api/auth.js'
 import { useHead } from '@unhead/vue'
+import PasswordInput from '@/components/ui/PasswordInput.vue'
 
 useHead({ title: 'Nouveau mot de passe — Zsdevweb' })
 
