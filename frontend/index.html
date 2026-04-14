@@ -8,8 +8,9 @@
     <title>Zsdevweb — Création de Site Web pour TPE/PME à Mouvaux & Lille</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- vite-plugin-webfont-dl remplace ce lien par des fichiers locaux au build (pas de CDN en prod) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet" />
+    <!-- Non-blocking font load (dev) — vite-plugin-webfont-dl sert les polices en local au build -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet" /></noscript>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

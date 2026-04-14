@@ -27,6 +27,22 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+
+  build: {
+    target: 'es2020',
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) return 'vendor-vue'
+          if (id.includes('@unhead')) return 'vendor-head'
+          if (id.includes('axios')) return 'vendor-axios'
+          return 'vendor-misc'
+        },
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
