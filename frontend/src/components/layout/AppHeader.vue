@@ -2,6 +2,7 @@
   <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
+
         <!-- Logo -->
         <RouterLink to="/" class="flex items-center gap-2 font-display font-bold text-xl text-gray-900 dark:text-white">
           <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -23,41 +24,26 @@
           </RouterLink>
         </div>
 
-        <!-- CTAs + Dark toggle -->
+        <!-- Desktop : actions -->
         <div class="hidden md:flex items-center gap-3">
-          <!-- Toggle dark mode -->
-          <button
-            @click="toggleTheme"
-            class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            :aria-label="isDark ? 'Passer en mode clair' : 'Passer en mode sombre'"
-          >
-            <svg v-if="isDark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-          </button>
+          <DarkModeToggle :is-dark="isDark" @toggle="toggleTheme" />
 
-          <RouterLink to="/audit-gratuit" class="btn-ghost text-sm">Audit gratuit</RouterLink>
-          <RouterLink to="/devis" class="btn-primary text-sm py-2">Obtenir un devis</RouterLink>
+          <UserMenuDropdown
+            v-if="authStore.isAuthenticated"
+            ref="userMenuRef"
+            :user="authStore.user"
+            @logout="handleLogout"
+          />
+          <template v-else>
+            <RouterLink to="/connexion" class="btn-ghost text-sm">Connexion</RouterLink>
+            <RouterLink to="/audit-gratuit" class="btn-ghost text-sm">Audit gratuit</RouterLink>
+            <RouterLink to="/devis" class="btn-primary text-sm py-2">Obtenir un devis</RouterLink>
+          </template>
         </div>
 
-        <!-- Mobile: dark toggle + burger -->
+        <!-- Mobile : dark toggle + burger -->
         <div class="md:hidden flex items-center gap-2">
-          <button
-            @click="toggleTheme"
-            class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            :aria-label="isDark ? 'Mode clair' : 'Mode sombre'"
-          >
-            <svg v-if="isDark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-          </button>
-
+          <DarkModeToggle :is-dark="isDark" @toggle="toggleTheme" :compact="true" />
           <button
             @click="uiStore.toggleMobileMenu()"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -92,9 +78,25 @@
             >
               {{ link.label }}
             </RouterLink>
+
             <div class="pt-3 flex flex-col gap-2">
-              <RouterLink to="/audit-gratuit" class="btn-secondary text-sm justify-center">Audit gratuit</RouterLink>
-              <RouterLink to="/devis" class="btn-primary text-sm justify-center">Obtenir un devis</RouterLink>
+              <template v-if="authStore.isAuthenticated">
+                <div class="px-4 py-2 border border-gray-100 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <p class="text-xs text-gray-400">Connecté</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ authStore.user?.email }}</p>
+                </div>
+                <RouterLink to="/espace-client" class="btn-secondary text-sm justify-center">Mes projets</RouterLink>
+                <RouterLink to="/espace-client/profil" class="btn-ghost text-sm justify-center">Mon profil</RouterLink>
+                <button @click="handleLogout" class="btn-ghost text-sm justify-center text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                  Se déconnecter
+                </button>
+              </template>
+              <template v-else>
+                <RouterLink to="/connexion" class="btn-secondary text-sm justify-center">Connexion</RouterLink>
+                <RouterLink to="/inscription" class="btn-ghost text-sm justify-center">Créer un compte</RouterLink>
+                <RouterLink to="/audit-gratuit" class="btn-ghost text-sm justify-center">Audit gratuit</RouterLink>
+                <RouterLink to="/devis" class="btn-primary text-sm justify-center">Obtenir un devis</RouterLink>
+              </template>
             </div>
           </div>
         </div>
@@ -104,15 +106,29 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUIStore } from '@/stores/ui.js'
+import { useAuthStore } from '@/stores/auth.js'
 import { useTheme } from '@/composables/useTheme.js'
+import UserMenuDropdown from './UserMenuDropdown.vue'
+import DarkModeToggle from './DarkModeToggle.vue'
 
 const uiStore = useUIStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const { isDark, toggle: toggleTheme } = useTheme()
+const userMenuRef = ref(null)
 
-router.afterEach(() => uiStore.closeMobileMenu())
+router.afterEach(() => {
+  uiStore.closeMobileMenu()
+  userMenuRef.value?.close()
+})
+
+async function handleLogout() {
+  authStore.logout()
+  router.push('/')
+}
 
 const navLinks = [
   { to: '/services', label: 'Services' },

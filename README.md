@@ -1,72 +1,294 @@
-# Zsdevweb — Plateforme de génération de leads & devis automatisés
+# Zsdevweb — Site Vitrine + CRM Freelance
 
-Application SaaS complète pour un développeur freelance Vue.js/Django. Machine d'acquisition client avec simulateur de projet, générateur de devis intelligent, calculateur ROI et capture de leads à chaque étape.
+> **Document de référence IA** — Relire ce fichier en début de chaque conversation pour restaurer le contexte complet du projet.
 
-## Stack technique
+Application complète pour un développeur freelance web ciblant les TPE/PME de la métropole lilloise (Mouvaux, Roubaix, Tourcoing, Hem). Combine un site vitrine SEO, un simulateur de prix, un wizard de devis, un CRM de leads, et un espace client.
+
+---
+
+## Stack Technique
 
 | Couche | Technologies |
 |--------|-------------|
-| Frontend | Vue.js 3, Vite, Tailwind CSS, Pinia, Vue Router, Axios |
-| Backend | Django 5.2, Django REST Framework, SimpleJWT |
+| Frontend | Vue.js 3, Vite 5, Tailwind CSS 3, Pinia, Vue Router 4, Axios 1.15 |
+| Backend | Django 5.0, Django REST Framework 3.15, SimpleJWT 5.3 |
 | Base de données | PostgreSQL 16 |
-| Cache | Redis 7 |
-| PDF | WeasyPrint |
-| Proxy | Nginx 1.25 |
+| Cache / Broker | Redis 7 |
+| PDF | WeasyPrint 62 |
+| Tâches async | Celery 5.4 + django-celery-beat 2.6 |
+| Monitoring | Sentry (backend + frontend) |
+| Proxy | Nginx 1.25 (prod) |
 | Conteneurs | Docker + Docker Compose |
+| CI/CD | GitHub Actions (.github/workflows/) |
 
-## Démarrage rapide
+---
+
+## Architecture du Projet
+
+```
+ZSdevweb4/
+├── backend/
+│   ├── accounts/              # Auth JWT (AbstractUser, login par email)
+│   ├── quotes/                # Devis (wizard, signature, PDF, emails)
+│   ├── leads/                 # Leads qualifiés (scoring additif 0-100)
+│   ├── contacts/              # Formulaire de contact
+│   ├── portfolio/             # Portfolio + témoignages
+│   ├── services_catalog/      # Catalogue (ProjectType, DesignOption, ComplexityLevel, ProjectOption)
+│   ├── client_portal/         # Espace client (projets, updates, documents)
+│   ├── company/               # CompanySettings singleton (cache Redis)
+│   ├── audit/                 # Demandes d'audit gratuit
+│   ├── marketing/             # FAQ + marketing
+│   ├── services/              # Service layer (PricingService, QuoteService, LeadService, PDFService, EmailService)
+│   ├── tests/                 # Suite de tests (108/108 passent)
+│   └── zsdevweb/settings/     # base.py / development.py / production.py
+├── frontend/
+│   └── src/
+│       ├── views/             # 14+ vues (Home, Services, Portfolio, PortfolioDetail, Contact, Devis, etc.)
+│       ├── components/        # home/ layout/ quote/ ui/
+│       ├── stores/            # Pinia: auth, catalog, quote, ui
+│       ├── api/               # 11 modules API (axios avec refresh JWT auto)
+│       ├── composables/       # useLeadCapture, usePricing, useROI, useTheme, useToast, useApiCache
+│       └── router/            # Vue Router avec meta titles et guards
+├── nginx/                     # Config Nginx prod (security headers, gzip, X-Accel-Redirect)
+├── docker-compose.yml         # Dev (db, redis, backend, celery, celery-beat, frontend)
+├── docker-compose.prod.yml    # Prod (+ nginx, multi-stage builds)
+└── .github/workflows/         # CI (ci.yml) + Deploy (deploy.yml)
+```
+
+---
+
+## Score de Maturité (Avril 2026)
+
+| Catégorie | Score | Notes |
+|---|---|---|
+| Architecture & Scalabilité | 8.5/10 | Espace client complet, emails async Celery, DRY vérifié |
+| Sécurité | 9/10 | JWT HttpOnly, throttling, Sentry, pre-commit, password reset sécurisé |
+| SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
+| Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
+| Tests & Qualité | 8.5/10 | 108 backend + 17 Vitest — build propre, Playwright séparé |
+| Frontend (UX/DX) | 8.5/10 | Espace client fonctionnel, header auth, profil, mot de passe oublié |
+| Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
+| Prêt pour Paiement | 3/10 | Tout à construire |
+| **GLOBAL** | **8.5/10** | |
+
+---
+
+## Décisions Techniques Critiques
+
+### Espace Client — Architecture
+- Notifications projet : signal `post_save` → `notify_client_project_update.delay()` (Celery, SRP)
+- Password reset : `PasswordResetRequestView` délègue à `send_password_reset_email.delay()` — thread HTTP libéré immédiatement, même timing quelle que soit l'existence de l'email (anti-énumération)
+- `MeView` : PATCH uniquement (`http_method_names`) — PUT incompatible avec `email` read-only
+- Mutation store Pinia : via action `authStore.updateUser(data)`, jamais directement depuis une vue
+- Couleurs de statut centralisées dans `statusColors.js` — un seul fichier à modifier pour tous les badges
+
+### PDF & DB — Architecture
+- `Quote.pdf_generated_at` : le `PdfService` fait `update_fields=['pdf_file', 'pdf_generated_at']` en une seule requête (pas de double save)
+- `ProjectDocument.quote_source` : OneToOne sur Quote (`SET_NULL`) — garantit l'absence de doublon sans logique applicative
+- Double signal idempotent : `on_client_project_saved` (chemin normal) + `attach_quote_pdf_to_portal` (chemin si statut accepted précède la création du projet) — les deux vérifient `filter(quote_source=quote).exists()` avant de créer
+- `notify_admin_quote_signed` Celery task — découple la notification admin du thread HTTP de signature ; `_notify_admin_signature` inline supprimé de `views.py`
+
+### JWT Authentication
+- **refresh_token** : cookie HttpOnly (set par Django via `Set-Cookie`)
+- **access_token** : en mémoire Pinia uniquement (jamais dans localStorage)
+- `axios.defaults.withCredentials = true` sur tous les appels
+- Intercepteur axios : sur 401, appelle `/api/v1/auth/token/refresh/` automatiquement
+
+### PricingService (stateless, sans ORM)
+- `services/pricing_service.py` — méthode de classe `full_breakdown(project_type, complexity, options, discount_percent)`
+- Plan de paiement 30/40/30 avec correction d'arrondi sur la 3ème tranche
+- TVA 20% incluse dans le calcul
+- Testé sans DB dans `tests/test_quote_service.py`
+
+### QuoteService
+- `services/quote_service.py` — méthode **d'instance** : `QuoteService().create_from_wizard(wizard_data)`
+- Importe les modèles Django **localement** à l'intérieur de la fonction (pas au niveau module)
+- La capture de lead est gérée via un signal `post_save` sur Quote (SRP), pas dans QuoteService
+- Le reverse FK de Quote vers Lead a `related_name='quotes'` → accessible via `lead.quotes`
+
+### Rate Limiting
+- Global DRF : `AnonRateThrottle` 30/min, `UserRateThrottle` 100/min
+- Scoped : `quote_create` 5/min, `contact_create` 5/min, `auth_token` 10/min
+- Classe : `ScopedRateThrottle` dans les views concernées (import requis)
+
+### Documentation API (drf-spectacular)
+- `/api/v1/schema/` → OpenAPI YAML
+- `/api/v1/docs/` → Swagger UI (DEBUG only, sinon staff_member_required)
+- `/api/v1/redoc/` → ReDoc (DEBUG only, sinon staff_member_required)
+- `SPECTACULAR_SETTINGS` avec `bearerAuth` security scheme dans `settings/base.py`
+
+---
+
+## Endpoints API Principaux
+
+```
+Auth
+  POST /api/v1/auth/token/          # Login → access_token + refresh_token cookie
+  POST /api/v1/auth/token/refresh/  # Renouvelle access_token via cookie
+  POST /api/v1/auth/token/blacklist/ # Logout
+
+Devis
+  POST /api/v1/quotes/              # Crée un devis (wizard) — throttle 5/min
+  GET  /api/v1/quotes/{uuid}/       # Détail devis (auth ou token)
+  POST /api/v1/quotes/{uuid}/sign/  # Signature électronique
+  GET  /api/v1/quotes/{uuid}/pdf/   # Génère le PDF
+
+Contact
+  POST /api/v1/contacts/            # Formulaire contact — throttle 5/min
+
+Portfolio
+  GET  /api/v1/portfolio/           # Liste des projets
+  GET  /api/v1/portfolio/{slug}/    # Détail projet
+
+Health
+  GET  /api/v1/health/              # Readiness (DB + cache)
+  GET  /api/v1/health/liveness/     # Liveness only
+  GET  /api/v1/health/readiness/    # Readiness (alias)
+
+Catalog
+  GET  /api/v1/catalog/project-types/
+  GET  /api/v1/catalog/design-options/
+  GET  /api/v1/catalog/complexity-levels/
+  GET  /api/v1/catalog/options/
+
+Espace client (auth requise)
+  GET  /api/v1/client-portal/projects/
+  GET  /api/v1/client-portal/projects/{id}/
+```
+
+---
+
+## État d'Avancement
+
+### Phase 1 — Sécurité ✅ Complète
+- [x] Comparaison token via `constant_time_compare`
+- [x] `SECRET_KEY` sans valeur par défaut
+- [x] Rate limiting global + scoped
+- [x] Page 404 Vue Router (`NotFoundView.vue`)
+- [x] Error handler global Vue.js
+- [x] Sentry backend + frontend
+- [x] Pre-commit hooks (black, isort, flake8, gitleaks)
+- [x] JWT → cookie HttpOnly + mémoire Pinia
+- [x] Password reset sécurisé (token Django 24h, anti-énumération, async Celery)
+
+### Phase 2 — SEO & Performance ✅ Quasi-complète
+- [x] Page portfolio détaillée `/portfolio/:slug`
+- [x] Sitemap dynamique Django (StaticPagesSitemap + PortfolioSitemap)
+- [x] Méta-données : og:image, canonical, twitter:card
+- [x] JSON-LD : FAQPage, Service, AggregateRating, LocalBusiness
+- [x] Lazy loading images + conversion WebP (signal Pillow)
+- [x] Fonts self-hosted (vite-plugin-webfont-dl, Inter 400/600/700)
+- [x] Cache API frontend (composable `useApiCache` TTL 5 min)
+- [ ] SSR / Pre-rendering (décision en attente : vite-ssg ou Nuxt.js)
+
+### Phase 3 — Tests ✅ Complète (sauf E2E)
+- [x] 108/108 tests backend passent
+- [x] Tests API (auth, portfolio, contact, health, security)
+- [x] Tests Celery (18 tests, ALWAYS_EAGER, factories)
+- [x] Tests Vitest frontend — 17 tests, jsdom installé, Playwright exclu du runner
+- [x] Documentation API drf-spectacular
+- [ ] Tests E2E Playwright (parcours devis + signature)
+
+### Espace Client ✅ Complet
+- [x] Header avec menu utilisateur authentifié (avatar, dropdown, déconnexion)
+- [x] Redirect post-login préservant l'URL d'origine
+- [x] Notifications email client sur `ProjectUpdate` (Celery, retry ×3)
+- [x] Mot de passe oublié + reset (`ForgotPasswordView`, `ResetPasswordView`)
+- [x] Page profil `/espace-client/profil` (infos + changement mot de passe)
+- [x] `statusColors.js` centralisé, composants `UserMenuDropdown` + `DarkModeToggle`
+- [x] Page inscription `/inscription` (`RegisterView.vue`) — auto-login post-register, erreurs champ par champ
+- [x] `RegisterSerializer` — `username` auto-généré depuis l'email, doublon email détecté, `validate_password` Django
+
+### PDF & Base de Données ✅ Complet
+- [x] `Quote.pdf_generated_at` — timestamp de la dernière génération PDF
+- [x] `ProjectDocument.quote_source` — FK OneToOne vers le devis source (auto-attachment, idempotent)
+- [x] Type `'quote'` dans `ProjectDocument.TYPE_CHOICES`
+- [x] Signal `on_client_project_saved` → PDF du devis auto-attaché en `ProjectDocument` à la création/liaison d'un `ClientProject`
+- [x] Signal `attach_quote_pdf_to_portal` → même logique déclenchée si le devis est accepté en premier
+- [x] `notify_admin_quote_signed` Celery task — notification admin signature désormais async (retry ×2)
+
+### Phase 4 — Paiement Stripe ❌ Non démarré
+Architecture cible :
+```
+POST /api/v1/payments/create-checkout/   → Crée CheckoutSession Stripe
+POST /api/v1/payments/webhook/           → Reçoit webhooks Stripe
+GET  /api/v1/payments/{quote_uuid}/      → Statut paiements d'un devis
+GET  /api/v1/payments/{id}/invoice/      → PDF facture
+
+Frontend:
+/devis/:uuid/payer    → Page paiement
+/paiement/succes      → Confirmation
+/paiement/annule      → Annulation
+```
+CSP nginx à adapter pour Stripe (connect-src api.stripe.com, frame-src js.stripe.com).
+
+### Phase 5 — Long terme ❌ Non démarré
+- Blog Django (levier SEO n°1)
+- PWA (vite-plugin-pwa)
+- Monitoring Prometheus + Grafana
+- Backup DB automatisé pg_dump + S3
+- Migration TypeScript progressive
+
+---
+
+## Démarrage Rapide
 
 ### Prérequis
 - Docker Desktop installé et lancé
-- `make` disponible (Linux/macOS) ou Git Bash (Windows)
+- `make` disponible
 
-### 1. Configurer l'environnement
+### Lancer en développement
 
 ```bash
 cp .env.example .env
-# Éditer .env si nécessaire (les valeurs par défaut fonctionnent en dev)
-```
-
-### 2. Lancer en développement
-
-```bash
 make dev
 ```
 
-Cela démarre :
+Services disponibles :
 - **Frontend** → http://localhost:5173
 - **Backend API** → http://localhost:8000/api/v1/
-- **Swagger UI** → http://localhost:8000/api/v1/docs/ (dev)
-- **OpenAPI schema** → http://localhost:8000/api/v1/schema/ (dev)
+- **Swagger UI** → http://localhost:8000/api/v1/docs/ (DEBUG only)
 - **Django Admin** → http://localhost:8000/admin/
-- **PostgreSQL** sur port 5432
-- **Redis** sur port 6379
+- **PostgreSQL** → port 5432
+- **Redis** → port 6379
 
-### 3. Initialiser la base de données
+### Initialiser la base
 
 ```bash
-make migrate    # Applique les migrations
-make seed       # Charge le catalogue de services
-make createsuperuser  # Crée l'admin Django
+make migrate
+make seed           # Charge le catalogue initial
+make createsuperuser
 ```
 
-## Sécurité API (résumé)
+---
 
-- Rate limiting activé sur les endpoints publics sensibles (devis, leads, contact, audit)
-- Réponses rate limit standardisées en JSON HTTP 429
-- Accès PDF devis protégé par token de signature (ou utilisateur authentifié)
-- Rejet des emails temporaires sur les formulaires publics
-- Génération/validation OpenAPI vérifiée en CI
-- Monitoring Sentry optionnel activable via variables d'environnement
-- Documentation API protégée en production (accès staff admin uniquement)
-- Health endpoint enrichi avec checks base de données et cache
+## Tests
 
-Endpoint health API :
-GET /api/v1/health/ retourne 200 (ok) ou 503 (degraded) avec checks database/cache.
-GET /api/v1/health/liveness/ retourne 200 si le process est vivant.
-GET /api/v1/health/readiness/ retourne 200/503 selon disponibilité DB/Redis.
+```bash
+make test
+# ou directement :
+docker-compose exec backend pytest tests/ -v
 
-## Commandes `make`
+# Frontend
+cd frontend && npm test
+```
+
+### Infrastructure de test (conftest.py)
+- `celery_eager_mode` (autouse) : `CELERY_TASK_ALWAYS_EAGER = True`
+- `disable_email_sending` (autouse) : `EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'`
+- `use_dummy_cache` (autouse) : LocMemCache en test (pas Redis)
+- `factories.py` : `make_portfolio_item()`, `make_testimonial()`, helpers devis
+
+### Points d'attention pour les tests
+- `auto_now_add=True` sur `Lead.created_at` : utiliser `.update()` pour rétrodater
+- `Quote.save` est patchable via `@patch('quotes.models.Quote.save', autospec=True)`
+- `QuoteService` est une instance (pas static) → `QuoteService().create_from_wizard(data)`
+- `ProjectType` requiert une `category` FK → créer `ProjectCategory` d'abord
+- Reverse accessor Lead→Quote : `lead.quotes` (related_name='quotes')
+
+---
+
+## Commandes Make
 
 ```bash
 make dev          # Démarre l'environnement de développement
@@ -80,107 +302,66 @@ make shell        # Ouvre un shell Django
 make psql         # Ouvre une console PostgreSQL
 make createsuperuser  # Crée un superutilisateur Django
 make logs         # Affiche les logs en temps réel
+make backup-db    # Dump PostgreSQL compressé dans ./backups/
 ```
 
-## Backups base de données
+---
 
-```bash
-make backup-db
-# Crée un dump compressé dans ./backups/
+## Variables d'Environnement Clés
 
-make restore-db FILE=/chemin/absolu/backup.sql.gz
-# Restaure la base actuelle depuis un dump
-
-make prune-backups DAYS=7
-# Supprime les dumps de plus de N jours
-```
-
-## Architecture
-
-```
-ZSdevweb4/
-├── backend/
-│   ├── services/              # Logique métier (PricingService, QuoteService, LeadService...)
-│   ├── services_catalog/      # Catalogue: catégories, types de projets, options
-│   ├── quotes/                # Modèle Quote + QuoteEmailLog
-│   ├── leads/                 # Capture et scoring des leads
-│   ├── contacts/              # Formulaire de contact
-│   ├── audit/                 # Demandes d'audit gratuit
-│   ├── portfolio/             # Projets et témoignages
-│   ├── marketing/             # FAQ
-│   ├── company/               # CompanySettings (singleton)
-│   ├── templates/
-│   │   ├── emails/            # Templates email (HTML + txt)
-│   │   └── pdf/               # Template PDF WeasyPrint
-│   ├── fixtures/
-│   │   └── initial_catalog.json  # Données seed
-│   └── tests/                 # Tests unitaires
-├── frontend/
-│   └── src/
-│       ├── stores/            # Pinia: quote (wizard), auth, catalog, ui
-│       ├── composables/       # usePricing, useROI, useLeadCapture, useQuoteWizard
-│       ├── views/             # Pages Vue Router
-│       └── components/        # Composants réutilisables
-├── nginx/                     # Config Nginx production
-├── scripts/                   # Entrypoints Docker
-└── docker-compose.yml         # Dev
-└── docker-compose.prod.yml    # Production
-```
-
-## Fonctionnalités principales
-
-- **Simulateur de prix** — Estimation instantanée en 30 secondes (type de projet × complexité)
-- **Calculateur ROI** — Démontre la rentabilité du projet en 12 mois
-- **Wizard de devis** — 6 étapes guidées avec prix temps réel et capture de lead à l'étape 5
-- **Génération de devis PDF** — Via WeasyPrint avec plan de paiement 30/40/30
-- **Envoi par email** — Template HTML responsive + version texte
-- **Système de leads** — Score additif, déduplication par email, sources traçées
-- **Admin Django** — Gestion des devis, leads, portfolio, FAQ
-
-## Déploiement en production
-
-```bash
-cp .env.example .env
-# Configurer SECRET_KEY, DATABASE_URL, EMAIL_*, FRONTEND_URL, etc.
-
-make prod
-```
-
-Checklist recommandée avant ouverture publique :
-1. Configurer `.env` production (SECRET_KEY forte, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS, CSRF_TRUSTED_ORIGINS)
-2. Vérifier les checks applicatifs : `/api/v1/health/liveness/` puis `/api/v1/health/readiness/`
-3. Exécuter la suite CI complète (backend tests, OpenAPI validate, nginx config check)
-4. Effectuer un backup initial de la base (`make backup-db`) et planifier la retention (`make prune-backups`)
-5. Créer/valider l'admin staff pour accès docs production
-6. Tester le parcours critique (création devis, email, PDF, signature)
-7. Activer le monitoring (Sentry DSN) et vérifier la remontée d'erreurs
-
-La configuration de production utilise :
-- Gunicorn avec workers Uvicorn (`-w 4 --worker-class uvicorn.workers.UvicornWorker`)
-- Nginx comme reverse proxy et serveur de fichiers statiques
-- Multi-stage Docker builds pour des images légères
-- Fichiers statiques servis avec cache `1y` immutable
-
-## Tests
-
-```bash
-make test
-# ou directement :
-docker-compose exec backend pytest tests/ -v
-```
-
-Les tests unitaires du `PricingService` sont entièrement purs (aucun accès DB, aucune migration).
-
-## Variables d'environnement clés
-
-| Variable | Description | Défaut dev |
-|----------|-------------|-----------|
-| `SECRET_KEY` | Clé secrète Django | `change-me` |
+| Variable | Description | Dev par défaut |
+|----------|-------------|----------------|
+| `SECRET_KEY` | Clé secrète Django (OBLIGATOIRE, pas de défaut en prod) | `change-me` |
 | `DEBUG` | Mode debug | `True` |
 | `DATABASE_URL` | URL PostgreSQL | `postgresql://zsdevweb:devpassword@db:5432/zsdevweb` |
 | `REDIS_URL` | URL Redis | `redis://redis:6379/0` |
 | `VITE_API_URL` | URL de l'API (frontend) | `http://localhost:8000` |
 | `EMAIL_BACKEND` | Backend email Django | `console` (dev) |
 | `FRONTEND_URL` | URL publique du frontend | `http://localhost:5173` |
+| `SENTRY_DSN` | DSN Sentry backend | vide = désactivé |
+| `VITE_SENTRY_DSN` | DSN Sentry frontend | vide = désactivé |
 
-Voir `.env.example` pour la liste complète.
+---
+
+## Fonctionnalités Principales
+
+- **Simulateur de prix** — Estimation instantanée (type × complexité × options)
+- **Calculateur ROI** — Démontre la rentabilité sur 12 mois
+- **Wizard de devis** — 6 étapes guidées, capture de lead à l'étape 5
+- **Génération PDF** — WeasyPrint, plan 30/40/30
+- **Emails** — Templates HTML responsive + texte brut
+- **Leads** — Score additif, déduplication email, sources traçées
+- **Portfolio** — Projets avec slug, WebP auto, page détail
+- **Espace client** — Suivi projets, documents, mises à jour
+- **Admin Django** — Gestion devis, leads, portfolio, FAQ, CompanySettings
+
+---
+
+## Décisions en Attente
+
+1. **SSR** — Nuxt.js (migration lourde) ou vite-ssg (pré-rendu statique) ?
+2. **Stripe** — Checkout (redirection) ou Elements (formulaire intégré) ?
+3. **Blog** — Avant ou après le paiement ?
+4. **TypeScript** — Migration progressive ou rester en JS ?
+
+---
+
+## Historique Récent (Avril 2026)
+
+| Date | Action |
+|------|--------|
+| 2026-04-10 | Audit initial complet |
+| 2026-04-10 | Phase 1 Sécurité — items 1-9 complétés |
+| 2026-04-10 | Phase 2 SEO — portfolio detail, sitemap, JSON-LD, WebP, fonts, cache API |
+| 2026-04-10 | Phase 3 Tests — 108/108 passent (API, Celery, Vitest, health, security, docs) |
+| 2026-04-10 | Architecture — drf-spectacular (Swagger + ReDoc) |
+| 2026-04-10 | JWT localStorage → cookie HttpOnly + mémoire Pinia |
+| 2026-04-10 | Bugfixes — doublon drf_spectacular, ScopedRateThrottle manquant, related_name quotes |
+| 2026-04-10 | Dépendances — axios 1.15.0 (CVE SSRF), suppression doublons requirements.txt |
+| 2026-04-14 | Espace client — header auth, redirect login, notifications email (Celery) |
+| 2026-04-14 | Auth — password reset async, change-password, page profil |
+| 2026-04-14 | Refacto — UserMenuDropdown, DarkModeToggle, statusColors.js |
+| 2026-04-14 | Bugfixes build — StatusBadge export, vite-plugin-sitemap robots, Vitest include, jsdom |
+| 2026-04-14 | DRY — email reset Celery, MeView PATCH-only, updateUser action Pinia |
+| 2026-04-14 | PDF + DB — `pdf_generated_at`, `quote_source` FK, signals auto-attachment, `notify_admin_quote_signed` Celery |
+| 2026-04-14 | Auth — page inscription `/inscription`, auto-login, username auto-généré, liens header |

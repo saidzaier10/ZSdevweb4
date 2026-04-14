@@ -1,13 +1,22 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import UserSerializer, RegisterSerializer
+from .serializers import (
+    UserSerializer,
+    RegisterSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+    ChangePasswordSerializer,
+)
 
 User = get_user_model()
 
@@ -88,8 +97,72 @@ class RegisterView(generics.CreateAPIView):
 
 
 class MeView(generics.RetrieveUpdateAPIView):
+    """GET : profil courant. PATCH : mise à jour partielle (PUT désactivé)."""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'patch', 'head', 'options']
 
     def get_object(self):
         return self.request.user
+
+
+class PasswordResetRequestView(APIView):
+    """Envoie un email avec le lien de réinitialisation du mot de passe."""
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'auth_token'
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        # Réponse identique que l'email existe ou non (anti-énumération)
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'Si cet email est enregistré, un lien a été envoyé.'})
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_url = (
+            f'{settings.FRONTEND_URL}/reinitialiser-mot-de-passe'
+            f'?uid={uid}&token={token}'
+        )
+
+        from .tasks import send_password_reset_email
+        send_password_reset_email.delay(user.pk, reset_url)
+
+        return Response({'detail': 'Si cet email est enregistré, un lien a été envoyé.'})
+
+
+class PasswordResetConfirmView(APIView):
+    """Valide le token et applique le nouveau mot de passe."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+        user.set_password(serializer.validated_data['password'])
+        user.save(update_fields=['password'])
+
+        return Response({'detail': 'Mot de passe mis à jour avec succès.'})
+
+
+class ChangePasswordView(APIView):
+    """Change le mot de passe d'un utilisateur connecté."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save(update_fields=['password'])
+
+        return Response(
+            {'detail': 'Mot de passe modifié avec succès.'},
+            status=status.HTTP_200_OK,
+        )

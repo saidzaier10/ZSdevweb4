@@ -227,8 +227,9 @@ class QuoteSignView(APIView):
                     converted_at=now,
                 )
 
-            # Notification admin
-            _notify_admin_signature(quote, accepted=True)
+            # Notification admin (async)
+            from .tasks import notify_admin_quote_signed
+            notify_admin_quote_signed.delay(quote.pk, accepted=True)
             logger.info('quote_signed_accepted quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
 
             return Response({
@@ -244,7 +245,8 @@ class QuoteSignView(APIView):
                 quote.notes_internal += f'\nRefusé le {now.strftime("%d/%m/%Y")}. Raison: {reason}'
             quote.save(update_fields=['status', 'notes_internal'])
 
-            _notify_admin_signature(quote, accepted=False, reason=reason)
+            from .tasks import notify_admin_quote_signed
+            notify_admin_quote_signed.delay(quote.pk, accepted=False, reason=reason)
             logger.info('quote_signed_rejected quote=%s ip=%s', quote.uuid, request.META.get('REMOTE_ADDR'))
 
             return Response({
@@ -283,29 +285,3 @@ def _is_token_valid(provided_token: str, expected_token: str) -> bool:
         return False
     return constant_time_compare(str(provided_token), str(expected_token))
 
-def _notify_admin_signature(quote, accepted: bool, reason: str = '') -> None:
-    """Notifie l'admin par email lors d'une signature."""
-    from django.core.mail import send_mail
-    from django.conf import settings
-
-    action_str = 'ACCEPTÉ ✅' if accepted else 'REFUSÉ ❌'
-    subject = f'Devis {quote.quote_number} {action_str} — {quote.client_name}'
-    body = (
-        f'Devis {quote.quote_number}\n'
-        f'Client : {quote.client_name} ({quote.client_email})\n'
-        f'Montant : {quote.total_ttc} € TTC\n'
-        f'Statut : {action_str}\n'
-    )
-    if reason:
-        body += f'Raison du refus : {reason}\n'
-
-    try:
-        send_mail(
-            subject=subject,
-            message=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.DEFAULT_FROM_EMAIL],
-            fail_silently=True,
-        )
-    except Exception:
-        pass

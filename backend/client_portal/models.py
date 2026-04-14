@@ -91,11 +91,12 @@ class ProjectDocument(models.Model):
     Documents partagés avec le client (maquettes, contrats, livrables…).
     """
     TYPE_CHOICES = [
-        ('contract',  'Contrat'),
-        ('mockup',    'Maquette'),
+        ('quote',       'Devis'),
+        ('contract',    'Contrat'),
+        ('mockup',      'Maquette'),
         ('deliverable', 'Livrable'),
-        ('invoice',   'Facture'),
-        ('other',     'Autre'),
+        ('invoice',     'Facture'),
+        ('other',       'Autre'),
     ]
 
     project = models.ForeignKey(
@@ -106,6 +107,14 @@ class ProjectDocument(models.Model):
     file = models.FileField(upload_to='client_docs/%Y/%m/')
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # Lien vers le devis source (si ce document a été auto-généré depuis un devis)
+    quote_source = models.OneToOneField(
+        'quotes.Quote',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='portal_document',
+    )
 
     class Meta:
         ordering = ['-uploaded_at']

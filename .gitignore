@@ -48,3 +48,9 @@ logs/
 
 # PDF generated
 backend/media/quotes/
+
+# Virtual environments
+.venv/
+.venv312/
+venv/
+env/

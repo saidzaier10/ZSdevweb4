@@ -39,6 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = token
   }
 
+  function updateUser(patch) {
+    if (user.value) {
+      user.value = { ...user.value, ...patch }
+    }
+  }
+
   function logout() {
     accessToken.value = null
     user.value = null
@@ -68,6 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchMe,
     logout,
     setAccessToken,
+    updateUser,
     tryRestoreSession,
   }
 })

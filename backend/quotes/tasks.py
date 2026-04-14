@@ -138,6 +138,47 @@ def send_lead_follow_ups(self):
         raise self.retry(exc=exc)
 
 
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
+def notify_admin_quote_signed(self, quote_id: int, accepted: bool, reason: str = '') -> str:
+    """
+    Notifie l'admin par email quand un devis est signé (accepté ou refusé).
+    Appelé depuis QuoteSignView après la mise à jour du statut.
+    """
+    from .models import Quote
+    from django.core.mail import send_mail
+    from django.conf import settings
+
+    try:
+        quote = Quote.objects.get(pk=quote_id)
+    except Quote.DoesNotExist:
+        logger.error('notify_admin_quote_signed: Quote %s introuvable', quote_id)
+        return 'not_found'
+
+    action_str = 'ACCEPTÉ ✅' if accepted else 'REFUSÉ ❌'
+    subject = f'Devis {quote.quote_number} {action_str} — {quote.client_name}'
+    body = (
+        f'Devis {quote.quote_number}\n'
+        f'Client : {quote.client_name} ({quote.client_email})\n'
+        f'Montant : {quote.total_ttc} € TTC\n'
+        f'Statut : {action_str}\n'
+    )
+    if reason:
+        body += f'Raison du refus : {reason}\n'
+
+    try:
+        send_mail(
+            subject=subject,
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.DEFAULT_FROM_EMAIL],
+            fail_silently=False,
+        )
+        return f'sent:{quote.quote_number}'
+    except Exception as exc:
+        logger.error('notify_admin_quote_signed error: %s', exc)
+        raise self.retry(exc=exc)
+
+
 @shared_task
 def cleanup_draft_quotes():
     """

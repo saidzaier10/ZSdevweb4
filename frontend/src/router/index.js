@@ -81,6 +81,24 @@ const routes = [
     meta: { title: 'Connexion — Zsdevweb' },
   },
   {
+    path: '/inscription',
+    name: 'register',
+    component: () => import('@/views/RegisterView.vue'),
+    meta: { title: 'Créer un compte — Zsdevweb' },
+  },
+  {
+    path: '/mot-de-passe-oublie',
+    name: 'forgot-password',
+    component: () => import('@/views/ForgotPasswordView.vue'),
+    meta: { title: 'Mot de passe oublié — Zsdevweb' },
+  },
+  {
+    path: '/reinitialiser-mot-de-passe',
+    name: 'reset-password',
+    component: () => import('@/views/ResetPasswordView.vue'),
+    meta: { title: 'Nouveau mot de passe — Zsdevweb' },
+  },
+  {
     path: '/espace-client',
     name: 'client-portal',
     component: () => import('@/views/ClientPortalView.vue'),
@@ -91,6 +109,12 @@ const routes = [
     name: 'client-project',
     component: () => import('@/views/ClientProjectView.vue'),
     meta: { title: 'Mon projet — Zsdevweb', requiresAuth: true },
+  },
+  {
+    path: '/espace-client/profil',
+    name: 'profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { title: 'Mon profil — Zsdevweb', requiresAuth: true },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -113,7 +137,7 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ name: 'login' })
+    next({ name: 'login', query: { redirect: to.fullPath } })
   } else {
     next()
   }

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mise à jour de votre projet — {{ project.title }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #1e293b; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); padding: 40px 40px 32px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0 0 8px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .header p { color: #94a3b8; margin: 0; font-size: 15px; }
+    .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 16px; }
+    .badge-progress  { background: #dbeafe; color: #1d4ed8; }
+    .badge-milestone { background: #dcfce7; color: #15803d; }
+    .badge-delivery  { background: #f3e8ff; color: #7c3aed; }
+    .badge-feedback  { background: #fef3c7; color: #b45309; }
+    .badge-info      { background: #f1f5f9; color: #475569; }
+    .body { padding: 40px; }
+    .greeting { font-size: 16px; margin-bottom: 24px; color: #374151; }
+    .update-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 28px; margin: 24px 0; }
+    .update-card h2 { margin: 0 0 12px; font-size: 18px; font-weight: 700; color: #0369a1; }
+    .update-card p { margin: 0; font-size: 15px; color: #374151; line-height: 1.7; }
+    .project-info { background: #f8fafc; border-radius: 8px; padding: 16px 20px; margin: 20px 0; font-size: 14px; color: #475569; }
+    .project-info strong { color: #1e293b; }
+    .cta-block { text-align: center; margin: 36px 0 24px; }
+    .btn { display: inline-block; background: #2563eb; color: #ffffff !important; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+    .footer a { color: #3b82f6; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>Zsdevweb</h1>
+      <p>Mise à jour de votre projet</p>
+      <span class="badge badge-{{ update.update_type }}">{{ update.get_update_type_display }}</span>
+    </div>
+
+    <div class="body">
+      <p class="greeting">
+        Bonjour{% if client_name %} <strong>{{ client_name }}</strong>{% endif %},
+      </p>
+
+      <p style="font-size:15px;color:#374151;margin-bottom:24px;">
+        Votre projet <strong>{{ project.title }}</strong> vient d'être mis à jour.
+        Voici le dernier point d'avancement :
+      </p>
+
+      <div class="update-card">
+        <h2>{{ update.title }}</h2>
+        <p>{{ update.content }}</p>
+      </div>
+
+      <div class="project-info">
+        <strong>Projet :</strong> {{ project.title }}<br />
+        <strong>Avancement global :</strong> {{ project.progress_percent }}%<br />
+        {% if project.estimated_delivery %}
+        <strong>Livraison prévue :</strong> {{ project.estimated_delivery|date:"d F Y" }}<br />
+        {% endif %}
+        <strong>Statut :</strong> {{ project.get_status_display }}
+      </div>
+
+      <div class="cta-block">
+        <a href="{{ portal_url }}" class="btn">Voir mon projet</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        Zsdevweb — Développement web pour TPE/PME<br />
+        Métropole Lilloise · Mouvaux, Roubaix, Tourcoing<br />
+        <a href="{{ frontend_url }}">{{ frontend_url }}</a>
+      </p>
+      <p style="margin-top:12px;font-size:12px;">
+        Vous recevez cet email car vous êtes client Zsdevweb.<br />
+        Pour toute question, répondez directement à cet email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

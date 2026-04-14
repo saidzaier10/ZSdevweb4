@@ -142,7 +142,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { clientApi } from '@/api/client.js'
 import { useHead } from '@unhead/vue'
-import StatusBadge, { PROJECT_STATUS_COLORS } from '@/components/ui/StatusBadge.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
+import { PROJECT_STATUS_COLORS } from '@/components/ui/statusColors.js'
 import SkeletonLoader from '@/components/ui/SkeletonLoader.vue'
 
 useHead({

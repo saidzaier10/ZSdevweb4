@@ -9,6 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.js'],
+    include: ['src/test/**/*.{test,spec}.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
@@ -17,7 +18,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    Sitemap({ hostname: 'https://zsdevweb.fr' }),
+    Sitemap({ hostname: 'https://zsdevweb.fr', generateRobotsTxt: false }),
     // Télécharge les Google Fonts au build et les sert en local → plus de dépendance CDN
     WebfontDownload(),
   ],

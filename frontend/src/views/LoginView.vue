@@ -12,7 +12,7 @@
             type="email"
             required
             autocomplete="email"
-            class="input w-full"
+            class="input-field w-full"
             placeholder="votre@email.fr"
           />
         </div>
@@ -25,30 +25,41 @@
             type="password"
             required
             autocomplete="current-password"
-            class="input w-full"
+            class="input-field w-full"
             placeholder="••••••••"
           />
         </div>
 
-        <p v-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</p>
+        <div class="flex items-center justify-between">
+          <p v-if="errorMsg" class="text-sm text-red-600" role="alert">{{ errorMsg }}</p>
+          <RouterLink to="/mot-de-passe-oublie" class="text-sm text-primary-600 hover:underline ml-auto">
+            Mot de passe oublié ?
+          </RouterLink>
+        </div>
 
         <button type="submit" class="btn-primary w-full" :disabled="loading">
           {{ loading ? 'Connexion…' : 'Se connecter' }}
         </button>
       </form>
+
+      <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-6">
+        Pas encore de compte ?
+        <RouterLink to="/inscription" class="text-primary-600 hover:underline font-medium">Créer un compte</RouterLink>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useHead } from '@unhead/vue'
 
 useHead({ title: 'Connexion — Zsdevweb' })
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const email = ref('')
@@ -61,7 +72,8 @@ async function handleLogin() {
   errorMsg.value = ''
   try {
     await authStore.login(email.value, password.value)
-    router.push('/espace-client')
+    const redirect = route.query.redirect
+    router.push(redirect && redirect.startsWith('/') ? redirect : '/espace-client')
   } catch (e) {
     errorMsg.value = e.response?.data?.detail || 'Identifiants incorrects.'
   } finally {

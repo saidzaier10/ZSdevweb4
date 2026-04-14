@@ -33,6 +33,19 @@ app.use(createPinia())
 app.use(router)
 app.use(head)
 
+// Directive v-click-outside : ferme les dropdowns au clic extérieur
+app.directive('click-outside', {
+  mounted(el, binding) {
+    el._clickOutsideHandler = (event) => {
+      if (!el.contains(event.target)) binding.value(event)
+    }
+    document.addEventListener('mousedown', el._clickOutsideHandler)
+  },
+  unmounted(el) {
+    document.removeEventListener('mousedown', el._clickOutsideHandler)
+  },
+})
+
 // Restauration silencieuse de session via cookie refresh_token HttpOnly
 import('@/stores/auth.js').then(({ useAuthStore }) => {
   useAuthStore().tryRestoreSession()

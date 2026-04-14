@@ -7,6 +7,7 @@ from io import BytesIO
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,9 @@ class PdfService:
             pdf_bytes = html.write_pdf()
 
             filename = f'Devis_{quote.quote_number}.pdf'
-            quote.pdf_file.save(filename, ContentFile(pdf_bytes), save=True)
+            quote.pdf_file.save(filename, ContentFile(pdf_bytes), save=False)
+            quote.pdf_generated_at = timezone.now()
+            quote.save(update_fields=['pdf_file', 'pdf_generated_at'])
 
             return True
 

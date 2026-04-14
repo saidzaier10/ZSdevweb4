@@ -82,6 +82,7 @@ class Quote(models.Model):
 
     # PDF
     pdf_file = models.FileField(upload_to='quotes/%Y/%m/', blank=True)
+    pdf_generated_at = models.DateTimeField(null=True, blank=True)
 
     # Relations
     lead = models.ForeignKey(

@@ -1,0 +1,24 @@
+Zsdevweb — Mise à jour de votre projet
+=======================================
+
+Bonjour{% if client_name %} {{ client_name }}{% endif %},
+
+Votre projet "{{ project.title }}" vient d'être mis à jour.
+
+--- {{ update.get_update_type_display|upper }} ---
+{{ update.title }}
+
+{{ update.content }}
+
+---
+Projet     : {{ project.title }}
+Avancement : {{ project.progress_percent }}%
+Statut     : {{ project.get_status_display }}
+{% if project.estimated_delivery %}Livraison  : {{ project.estimated_delivery|date:"d F Y" }}
+{% endif %}
+Voir votre projet : {{ portal_url }}
+
+---
+Zsdevweb — Développement web pour TPE/PME
+Métropole Lilloise · Mouvaux, Roubaix, Tourcoing
+{{ frontend_url }}

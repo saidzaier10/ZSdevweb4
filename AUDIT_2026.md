@@ -62,12 +62,12 @@ ZSdevweb4/
 
 | Catégorie | Score | Notes |
 |---|---|---|
-| Architecture & Scalabilité | 8/10 | drf-spectacular (Swagger/ReDoc), doc API complète |
-| Sécurité | 9/10 | JWT cookie HttpOnly, throttling spécifique, Sentry, pre-commit |
+| Architecture & Scalabilité | 8.5/10 | Espace client complet, emails async Celery, DRY vérifié |
+| Sécurité | 9/10 | JWT cookie HttpOnly, throttling spécifique, Sentry, pre-commit, password reset sécurisé |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
-| Tests & Qualité | 8.5/10 | 108 tests passent — API, Celery, Vitest, health, security, docs |
-| Frontend (UX/DX) | 8/10 | Cache API, composables, Vitest, manque TypeScript |
+| Tests & Qualité | 8.5/10 | 108 tests backend + 17 Vitest — build propre, Playwright exclus du runner |
+| Frontend (UX/DX) | 8.5/10 | Espace client fonctionnel, header auth, profil, mot de passe oublié |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
 | **GLOBAL** | **8.5/10** | |
@@ -125,7 +125,7 @@ ZSdevweb4/
 
 - [x] 17. Tests API backend (auth, portfolio, contact, health) ✅ — `tests/test_api_endpoints.py` + `tests/factories.py`
 - [x] 18. Tests Celery tasks ✅ (conftest.py + ALWAYS_EAGER + 18 tests : expire, cleanup, generate, lead follow-ups)
-- [x] 19. Tests unitaires frontend ✅ (Vitest + useApiCache.test.js + authStore.test.js)
+- [x] 19. Tests unitaires frontend ✅ (Vitest + useApiCache.test.js + authStore.test.js, jsdom installé, Playwright exclu)
 - [ ] 20. Tests E2E — Playwright (parcours devis + signature + espace client) (2 jours)
 - [ ] 21. Migration TypeScript progressive frontend (ongoing)
 - [x] 22. Documentation API avec drf-spectacular ✅ (/api/docs/ Swagger + /api/redoc/ en DEBUG)
@@ -259,18 +259,26 @@ script-src 'self' https://js.stripe.com;
 | 2026-04-10 | Phase 1 — JWT localStorage → cookie HttpOnly + mémoire Pinia | ✅ Fait |
 | 2026-04-10 | Tests — 108/108 passent (health, security, docs, celery, quote service) | ✅ Fait |
 | 2026-04-10 | Bugfixes — drf_spectacular doublon, ScopedRateThrottle manquant, related_name quotes | ✅ Fait |
+| 2026-04-14 | Espace client — header auth, redirect login, notifications email projet | ✅ Fait |
+| 2026-04-14 | Refacto header — UserMenuDropdown + DarkModeToggle composants extraits | ✅ Fait |
+| 2026-04-14 | Auth — password reset (Celery), change-password, page profil | ✅ Fait |
+| 2026-04-14 | Bugfixes build — StatusBadge export, vite-plugin-sitemap robots, Vitest include | ✅ Fait |
+| 2026-04-14 | DRY / scalabilité — email reset async Celery, MeView PATCH-only, updateUser action Pinia | ✅ Fait |
+| 2026-04-14 | PDF + DB — `pdf_generated_at` sur Quote, `quote_source` FK sur ProjectDocument, type 'quote' | ✅ Fait |
+| 2026-04-14 | Signals — auto-attach PDF devis en `ProjectDocument` à la liaison ClientProject | ✅ Fait |
+| 2026-04-14 | Async — `notify_admin_quote_signed` Celery task, `_notify_admin_signature` supprimé de views.py | ✅ Fait |
+| 2026-04-14 | Auth — inscription (`/inscription`), `RegisterView.vue`, auto-login post-register, username auto-généré | ✅ Fait |
 | | Phase 2 — SEO : SSR/pre-rendering | ❌ En attente |
 | | Phase 3 — Tests E2E Playwright | ❌ En attente |
 | | Phase 4 — Paiement Stripe | ❌ En attente |
-| | Phase 4 — Paiement | ❌ En attente |
 | | Phase 5 — Scalabilité | ❌ En attente |
 
 ### Prochaines étapes recommandées
 
-1. **Module payments/** (paiement) — Intégration Stripe (**étape majeure suivante**)
+1. **Module payments/** — Intégration Stripe (**étape majeure suivante**)
    - `backend/payments/` : models Payment/PaymentIntent, stripe_service.py, webhooks
    - Frontend : page `/devis/:uuid/payer`, Stripe Checkout, pages succès/annulation
    - Adapter CSP nginx pour Stripe (font-src, connect-src, frame-src)
-2. **Tests E2E Playwright** (qualité) — Parcours devis wizard + signature + espace client
-3. **SSR / Pre-rendering** (SEO) — Décision architecture : vite-ssg ou Nuxt.js
-4. **Migration TypeScript** (qualité) — Progressive, commencer par les composables
+2. **Tests E2E Playwright** — Parcours devis wizard + signature + espace client
+3. **SSR / Pre-rendering** — Décision architecture : vite-ssg ou Nuxt.js
+4. **Migration TypeScript** — Progressive, commencer par les composables

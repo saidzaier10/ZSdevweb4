@@ -12,6 +12,55 @@ logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender='quotes.Quote')
+def attach_quote_pdf_to_portal(sender, instance, created, **kwargs):
+    """
+    Quand un devis passe au statut 'accepted' et qu'un ClientProject lui est
+    déjà lié, déclenche la création du ProjectDocument côté portail.
+
+    Le signal on_client_project_saved gère la création effective ;
+    on l'active ici en cas de race condition (statut accepté avant
+    que le projet soit créé — rare, mais possible depuis l'admin).
+    """
+    if created:
+        return
+    if instance.status != 'accepted':
+        return
+
+    # Utilise le related_name 'project' défini sur ClientProject.quote
+    try:
+        project = instance.project  # OneToOne reverse accessor
+    except Exception:
+        return  # Pas encore de ClientProject lié — rien à faire
+
+    if not instance.pdf_file:
+        return
+
+    from client_portal.models import ProjectDocument
+
+    if ProjectDocument.objects.filter(quote_source=instance).exists():
+        return
+
+    try:
+        ProjectDocument.objects.create(
+            project=project,
+            doc_type='quote',
+            name=f'Devis {instance.quote_number}',
+            file=instance.pdf_file,
+            description=f'Devis accepté le {instance.signed_at.strftime("%d/%m/%Y") if instance.signed_at else "—"}',
+            quote_source=instance,
+        )
+        logger.info(
+            'attach_quote_pdf_to_portal: document créé quote=%s project_id=%s',
+            instance.quote_number, project.pk,
+        )
+    except Exception as e:
+        logger.error(
+            'attach_quote_pdf_to_portal: failed for quote %s: %s',
+            instance.quote_number, e,
+        )
+
+
+@receiver(post_save, sender='quotes.Quote')
 def capture_lead_on_quote_created(sender, instance, created, **kwargs):
     """
     À la création d'un Quote, capture ou met à jour le lead associé.
