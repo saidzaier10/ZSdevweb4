@@ -9,7 +9,7 @@
       <form @submit.prevent="handleRegister" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom</label>
+            <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Prénom</label>
             <input
               id="first_name"
               v-model="form.first_name"
@@ -20,7 +20,7 @@
             />
           </div>
           <div>
-            <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom</label>
+            <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Nom</label>
             <input
               id="last_name"
               v-model="form.last_name"
@@ -33,7 +33,7 @@
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Email</label>
           <input
             id="email"
             v-model="form.email"

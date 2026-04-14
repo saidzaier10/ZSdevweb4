@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
     <div class="card w-full max-w-md">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">Connexion</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Connexion</h1>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
           <input
             id="email"
             v-model="email"

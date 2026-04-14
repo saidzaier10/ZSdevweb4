@@ -22,28 +22,28 @@
         <form @submit.prevent="saveProfile" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Prénom</label>
               <input v-model="profile.first_name" type="text" class="input-field w-full" placeholder="Prénom" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Nom</label>
               <input v-model="profile.last_name" type="text" class="input-field w-full" placeholder="Nom" />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Email</label>
             <input :value="authStore.user?.email" type="email" class="input-field w-full opacity-60" disabled />
             <p class="text-xs text-gray-400 mt-1">L'email ne peut pas être modifié.</p>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Téléphone</label>
               <input v-model="profile.phone" type="tel" class="input-field w-full" placeholder="+33 6 12 34 56 78" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Entreprise</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Entreprise</label>
               <input v-model="profile.company" type="text" class="input-field w-full" placeholder="Nom de l'entreprise" />
             </div>
           </div>

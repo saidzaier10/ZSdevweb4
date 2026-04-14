@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-if="label" :for="stableId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    <label v-if="label" :for="stableId" class="block text-sm font-medium text-gray-700 dark:text-white mb-1">
       {{ label }}
     </label>
     <div class="relative">
