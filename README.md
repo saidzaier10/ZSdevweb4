@@ -209,13 +209,78 @@ Espace client (auth requise)
 
 ### Tableau de Bord Admin ✅ Complet
 - [x] `DashboardStatsView` — endpoint `/api/v1/quotes/dashboard/` protégé `IsAdminUser`
-- [x] KPIs : CA total, CA ce mois, devis total/mois/en attente/acceptés, taux de conversion, projets actifs
+- [x] KPIs : CA total, CA ce mois, devis total/mois/en attente/acceptés, taux de conversion, projets actifs, audits en attente
 - [x] 10 devis récents avec champs : `uuid`, `quote_number`, `client_name`, `total_ttc`, `status_display`, `created_at`
 - [x] 10 projets actifs avec champs : `uuid`, `title`, `client_email`, `status_display`, `progress_percent`
-- [x] `DashboardView.vue` — skeleton loading, KPI cards, tableau devis, liste projets, bouton Actualiser
+- [x] 10 demandes d'audit récentes : `name`, `email`, `site_url`, `objectives`, `is_processed`, `created_at`
+- [x] `DashboardView.vue` — skeleton loading, KPI cards, tableau devis, liste projets, liste audits, bouton Actualiser
 - [x] `is_staff` exposé dans `UserSerializer` (read-only) — guard `requiresStaff` dans le router
 - [x] Redirect post-login staff → `/tableau-de-bord`, clients → `/espace-client`
 - [x] Lien "Tableau de bord" dans `UserMenuDropdown` (staff uniquement, avec séparateur)
+
+### Accessibilité ✅ Complète (Lighthouse 100)
+- [x] `aria-hidden="true"` sur 58 SVG décoratifs — 35 fichiers Vue (batch script Python)
+- [x] Ratio contraste WCAG AA — `text-gray-500` → `text-gray-600` sur fonds clairs (50 fichiers)
+- [x] `text-gray-400` → `text-gray-500` sur fonds clairs ; footer gardé (`text-gray-400` sur `bg-gray-900`)
+- [x] IDs dupliqués — `BaseInput` et `PasswordInput` utilisent `getCurrentInstance().uid` (corrige `_counter` local qui se réinitialisait à chaque instance)
+
+### Phase 6 — Améliorations UX & Workflow ❌ Non démarrée
+
+Objectif : atteindre le niveau des outils freelance du marché (Bonsai, HoneyBook) sans réinventer la roue.
+Priorité décidée le 2026-04-14.
+
+#### 6.1 Notifications email automatiques — PRIORITÉ HAUTE
+- [ ] Email admin à chaque nouvelle demande d'audit (actuellement silencieux)
+- [ ] Email admin à chaque nouveau contact et nouveau devis
+- [ ] Relance automatique si devis envoyé depuis 3 jours sans réponse (Celery beat)
+- [ ] Email client automatique quand son projet change de statut (signal déjà présent, à vérifier)
+
+#### 6.2 Actions rapides depuis le dashboard — PRIORITÉ HAUTE
+- [ ] Bouton "Marquer traité" sur chaque demande d'audit dans `DashboardAuditsList.vue`
+  - Endpoint PATCH `api/v1/audit/{id}/` avec `is_processed=True`
+  - Mise à jour optimiste côté Vue
+- [ ] Bouton "Renvoyer le lien de signature" sur les devis en statut `sent`
+  - Réutiliser `QuoteSendView` ou créer `QuoteResendView`
+
+#### 6.3 Pagination + filtre + recherche — PRIORITÉ HAUTE
+- [ ] Backend : `django-filter` sur `QuoteListView` (filtre status, date, search client)
+- [ ] Backend : pagination DRF `PageNumberPagination` (20 par page) sur devis et audits
+- [ ] Frontend : `DashboardQuotesTable` — filtre status (select), recherche nom client (input debounce 300ms), pagination
+- [ ] Frontend : `DashboardAuditsList` — filtre is_processed, pagination
+
+#### 6.4 Graphiques dashboard — PRIORITÉ MOYENNE
+- [ ] Ajouter endpoint `GET /api/v1/quotes/dashboard/charts/` retournant :
+  - `revenue_by_month` : CA mensuel sur 12 mois (liste de 12 valeurs)
+  - `quotes_by_month` : nombre de devis par mois
+- [ ] Frontend : intégrer ApexCharts (`vue3-apexcharts`) — 2 graphiques : CA 12 mois (area) + devis/mois (bar)
+- [ ] Ajouter `DashboardCharts.vue` dans `DashboardView.vue`
+
+#### 6.5 Génération de facture depuis un devis accepté — PRIORITÉ MOYENNE
+- [ ] Backend : modèle `Invoice` dans `quotes/` ou nouveau module `invoices/`
+  - Champs : `quote` (FK), `invoice_number`, `issued_at`, `due_date`, `pdf_file`, `status` (draft/sent/paid)
+- [ ] Service `InvoiceService.create_from_quote(quote)` — pré-remplit avec 30% acompte
+- [ ] PDF WeasyPrint avec template facture distinct du devis
+- [ ] Endpoint `GET /api/v1/invoices/{id}/pdf/`
+- [ ] Dashboard : bouton "Créer facture" sur devis acceptés sans facture
+
+#### 6.6 Suivi des paiements (sans Stripe) — PRIORITÉ MOYENNE
+- [ ] Ajouter champs sur `Quote` : `deposit_paid_at`, `balance_paid_at`, `deposit_amount`
+- [ ] Dashboard : indicateurs visuels "Acompte reçu / Solde reçu" sur les devis acceptés
+- [ ] Permettre la mise à jour via PATCH depuis le dashboard
+
+#### 6.7 Messagerie interne projet — PRIORITÉ BASSE
+- [ ] Modèle `ProjectMessage` dans `client_portal/` : `project` (FK), `author` (FK User), `body`, `created_at`
+- [ ] Endpoint `GET/POST /api/v1/client-portal/projects/{uuid}/messages/`
+- [ ] Email de notification à l'autre partie à chaque nouveau message (Celery)
+- [ ] Composant `ProjectMessaging.vue` dans l'espace client + vue dashboard
+
+#### 6.8 PWA installable — PRIORITÉ BASSE
+- [ ] Ajouter `vite-plugin-pwa` dans `vite.config.js`
+- [ ] `manifest.json` : nom, icônes 192/512px, `start_url`, `display: standalone`, couleur `#2563eb`
+- [ ] Service worker minimal (cache-first pour assets statiques, network-first pour API)
+- [ ] Bannière "Installer l'app" dans l'espace client
+
+---
 
 ### Phase 4 — Paiement Stripe ❌ Non démarré
 Architecture cible :
@@ -378,3 +443,8 @@ make backup-db    # Dump PostgreSQL compressé dans ./backups/
 | 2026-04-14 | Dashboard admin — `DashboardStatsView` (IsAdminUser), KPIs + devis récents + projets actifs |
 | 2026-04-14 | Dashboard — `is_staff` dans UserSerializer, guard `requiresStaff`, redirect staff post-login |
 | 2026-04-14 | Tests — 128 collectés (+20 : dashboard, register, is_staff) |
+| 2026-04-14 | A11y — `aria-hidden="true"` batch sur 58 SVG décoratifs (35 fichiers) |
+| 2026-04-14 | A11y — ratio contraste WCAG AA : `text-gray-500`→`text-gray-600` / `text-gray-400`→`text-gray-500` (52 fichiers) |
+| 2026-04-14 | A11y — IDs dupliqués : `BaseInput` + `PasswordInput` → `getCurrentInstance().uid` |
+| 2026-04-14 | Dashboard — demandes d'audit : `recent_audits` + KPI `audits_pending`, `DashboardAuditsList.vue` |
+| 2026-04-14 | Phase 6 planifiée — notifications email, actions dashboard, pagination/filtre, graphiques, factures, paiements, messagerie, PWA |

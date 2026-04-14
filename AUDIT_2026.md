@@ -151,7 +151,7 @@ ZSdevweb4/
 - [ ] 33. Monitoring Prometheus + Grafana (2 jours)
 - [ ] 34. Backup DB automatisé pg_dump + S3/Backblaze (3h)
 - [ ] 35. Internationalisation vue-i18n (1 semaine)
-- [ ] 36. Audit accessibilité WCAG 2.1 AA (2 jours)
+- [x] 36. Audit accessibilité WCAG 2.1 AA ✅ — Lighthouse Accessibility 100 (aria-hidden, contraste, IDs uniques)
 - [ ] 37. Multi-tenancy SaaS si pertinent (3+ semaines)
 
 ---
@@ -271,14 +271,86 @@ script-src 'self' https://js.stripe.com;
 | 2026-04-14 | Dashboard admin — `DashboardStatsView` (IsAdminUser), KPIs + devis récents + projets actifs | ✅ Fait |
 | 2026-04-14 | Dashboard — `is_staff` dans UserSerializer, guard `requiresStaff`, redirect post-login staff | ✅ Fait |
 | 2026-04-14 | Tests — 128/128 collectés (+20 : dashboard, register, is_staff) | ✅ Fait |
+| 2026-04-14 | A11y — `aria-hidden="true"` batch sur 58 SVG décoratifs (35 fichiers Vue) | ✅ Fait |
+| 2026-04-14 | A11y — contraste WCAG AA : gray-500→600 / gray-400→500 sur fonds clairs (52 fichiers) | ✅ Fait |
+| 2026-04-14 | A11y — IDs dupliqués corrigés : `getCurrentInstance().uid` dans BaseInput + PasswordInput | ✅ Fait |
+| 2026-04-14 | Dashboard — demandes d'audit : `DashboardAuditsList.vue` + KPI `audits_pending` | ✅ Fait |
+| 2026-04-14 | Phase 6 planifiée — 8 améliorations UX & workflow (voir "Prochaines étapes") | 📋 Planifié |
 | | Phase 2 — SEO : SSR/pre-rendering | ❌ En attente |
 | | Phase 3 — Tests E2E Playwright | ❌ En attente |
+| | Phase 6 — Améliorations UX & Workflow | ❌ En attente |
 | | Phase 4 — Paiement Stripe | ❌ En attente |
 | | Phase 5 — Scalabilité | ❌ En attente |
 
 ### Prochaines étapes recommandées
 
-1. **Module payments/** — Intégration Stripe (**étape majeure suivante**)
+**Phase 6 — Améliorations UX & Workflow (décidé 2026-04-14)**
+
+Voir détail complet dans `README.md` section "Phase 6". Résumé priorisé :
+
+#### PRIORITÉ HAUTE (à faire en premier)
+
+**6.1 Notifications email automatiques**
+- Email admin : nouvelle demande d'audit, nouveau contact, nouveau devis
+- Relance devis sans réponse après 3 jours (Celery beat — `check_pending_quotes` task)
+- Fichiers concernés : `backend/quotes/tasks.py`, `backend/audit/` (signal ou view), `backend/services/email_service.py`
+
+**6.2 Actions rapides dashboard**
+- "Marquer traité" sur les audits : PATCH `api/v1/audit/{id}/` + update optimiste Vue
+  - Backend : `AuditRequestUpdateView` avec `permission_classes = [IsAdminUser]`
+  - Frontend : bouton dans `DashboardAuditsList.vue`, appel `api.patch()`
+- "Renvoyer lien de signature" sur devis `sent` : réutiliser `QuoteSendView` ou nouvel endpoint
+  - Frontend : bouton dans `DashboardQuotesTable.vue`
+
+**6.3 Pagination + filtre + recherche sur les listes dashboard**
+- Backend : `django-filter` + `PageNumberPagination` (20/page) sur `QuoteListView` et audit
+  - `pip install django-filter` → `INSTALLED_APPS += ['django_filters']`
+  - Filtres devis : `status`, `created_at__gte`, `search` (nom client)
+  - Filtres audit : `is_processed`
+- Frontend : composant filtre dans `DashboardQuotesTable.vue` (select status + input search debounce 300ms)
+  - Paramètres query string : `?status=sent&search=dupont&page=2`
+
+#### PRIORITÉ MOYENNE
+
+**6.4 Graphiques CA et devis**
+- Backend : endpoint `GET /api/v1/quotes/dashboard/charts/` (12 mois glissants)
+  - `revenue_by_month`: liste `[{"month": "2026-03", "amount": "1200.00"}, ...]`
+  - `quotes_by_month`: liste `[{"month": "2026-03", "count": 5}, ...]`
+- Frontend : `npm install vue3-apexcharts apexcharts`
+  - Nouveau composant `DashboardCharts.vue` — 2 graphiques (area CA + bar devis)
+  - Intégrer dans `DashboardView.vue` sous les KPI cards
+
+**6.5 Génération de facture depuis devis accepté**
+- Backend : modèle `Invoice` dans `backend/invoices/` (nouveau module)
+  - Champs : `quote` (FK OneToOne), `invoice_number` (auto `FACT-YYYY-XXXX`), `issued_at`, `due_date`, `pdf_file`, `status` (draft/sent/paid)
+  - `InvoiceService.create_from_quote(quote)` → pré-remplit 30% acompte, génère PDF WeasyPrint
+  - Template PDF facture distinct de celui des devis
+- Frontend : bouton "Créer facture" dans `DashboardQuotesTable.vue` (devis acceptés sans facture)
+
+**6.6 Suivi des paiements basique (sans Stripe)**
+- Backend : nouveaux champs sur `Quote` : `deposit_paid_at` (DateTimeField null), `balance_paid_at` (DateTimeField null)
+  - Migration `quotes/migrations/XXXX_quote_payment_tracking.py`
+  - Endpoint PATCH `/api/v1/quotes/{uuid}/payment/` (IsAdminUser)
+- Frontend : indicateurs "Acompte ✓" / "Solde ✓" dans `DashboardQuotesTable.vue`
+
+#### PRIORITÉ BASSE
+
+**6.7 Messagerie interne projet**
+- Backend : modèle `ProjectMessage(project FK, author FK User, body TextField, created_at)`
+  - Endpoints : `GET/POST /api/v1/client-portal/projects/{uuid}/messages/`
+  - Signal : email notification à l'autre partie (Celery)
+- Frontend : composant `ProjectMessaging.vue` dans `ClientProjectView.vue` et dashboard
+
+**6.8 PWA installable**
+- `npm install vite-plugin-pwa -D`
+- `vite.config.js` : plugin `VitePWA({ registerType: 'autoUpdate', manifest: {...} })`
+- Icônes 192×192 et 512×512 aux couleurs primary-600 (#2563eb)
+- Cache-first assets, network-first API
+
+---
+
+**Après Phase 6 :**
+1. **Module payments/** — Intégration Stripe
    - `backend/payments/` : models Payment/PaymentIntent, stripe_service.py, webhooks
    - Frontend : page `/devis/:uuid/payer`, Stripe Checkout, pages succès/annulation
    - Adapter CSP nginx pour Stripe (font-src, connect-src, frame-src)
