@@ -1,4 +1,6 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from services_catalog.models import ProjectType
 
 
@@ -37,7 +39,8 @@ class Lead(models.Model):
     source = models.CharField(max_length=30, choices=SOURCE_CHOICES, db_index=True)
     score = models.PositiveSmallIntegerField(
         default=0,
-        help_text="Score de qualification 0-100"
+        help_text="Score de qualification 0-100",
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
     )
     budget_range = models.CharField(max_length=20, choices=BUDGET_CHOICES, blank=True)
     project_type = models.ForeignKey(

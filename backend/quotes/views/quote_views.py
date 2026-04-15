@@ -1,11 +1,11 @@
 import logging
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from rest_framework.throttling import ScopedRateThrottle
-from rest_framework.views import APIView
+
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from quotes.models import Quote
 from quotes.permissions import IsOwnerOrStaffOrValidToken
@@ -19,8 +19,6 @@ logger = logging.getLogger(__name__)
 
 class QuoteCreateView(APIView):
     permission_classes = [permissions.AllowAny]
-    throttle_classes = [ScopedRateThrottle]
-    throttle_scope = 'quote_create'
 
     @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True))
     def post(self, request):
@@ -54,8 +52,8 @@ class QuoteDetailView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.status == 'sent':
-            instance.status = 'viewed'
+        if instance.status == Quote.STATUS_SENT:
+            instance.transition_to(Quote.STATUS_VIEWED)
             instance.viewed_at = timezone.now()
             instance.save(update_fields=['status', 'viewed_at'])
         data = self.get_serializer(instance).data

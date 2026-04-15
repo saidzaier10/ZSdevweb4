@@ -1,4 +1,6 @@
 import uuid
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from services_catalog.models import ProjectType, DesignOption, ComplexityLevel, SupplementaryOption
@@ -77,7 +79,7 @@ class Quote(models.Model):
     # Statut et cycle de vie
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_DRAFT, db_index=True)
     valid_until = models.DateField(null=True, blank=True)
-    signature_token = models.CharField(max_length=64, blank=True, db_index=True)
+    signature_token = models.CharField(max_length=128, blank=True, editable=False, db_index=True)
     signed_at = models.DateTimeField(null=True, blank=True)
 
     # PDF
@@ -104,6 +106,7 @@ class Quote(models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['client_email']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['updated_at']),
         ]
 
     def __str__(self):
@@ -117,8 +120,27 @@ class Quote(models.Model):
             self.valid_until = (timezone.now() + timedelta(days=30)).date()
         if not self.signature_token:
             import secrets
-            self.signature_token = secrets.token_urlsafe(48)
+            self.signature_token = secrets.token_urlsafe(96)  # 128 chars, jamais tronqué
         super().save(*args, **kwargs)
+
+    # Transitions valides entre statuts
+    _STATUS_TRANSITIONS = {
+        STATUS_DRAFT:    {STATUS_SENT},
+        STATUS_SENT:     {STATUS_VIEWED, STATUS_EXPIRED},
+        STATUS_VIEWED:   {STATUS_ACCEPTED, STATUS_REJECTED, STATUS_EXPIRED},
+        STATUS_ACCEPTED: set(),
+        STATUS_REJECTED: set(),
+        STATUS_EXPIRED:  set(),
+    }
+
+    def transition_to(self, new_status):
+        """Effectue une transition de statut validée. Lève ValidationError si invalide."""
+        allowed = self._STATUS_TRANSITIONS.get(self.status, set())
+        if new_status not in allowed:
+            raise ValidationError(
+                f"Transition de statut '{self.status}' → '{new_status}' non autorisée."
+            )
+        self.status = new_status
 
     @property
     def is_expired(self):
