@@ -25,15 +25,13 @@ def staff_user(db):
 
 @pytest.fixture
 def auth_client(client, user):
-    r = client.post('/api/v1/auth/token/', {'email': user.email, 'password': 'TestPassword123!'}, format='json')
-    client.credentials(HTTP_AUTHORIZATION=f'Bearer {r.data["access"]}')
+    client.force_authenticate(user=user)
     return client
 
 
 @pytest.fixture
 def staff_client(client, staff_user):
-    r = client.post('/api/v1/auth/token/', {'email': staff_user.email, 'password': 'TestPassword123!'}, format='json')
-    client.credentials(HTTP_AUTHORIZATION=f'Bearer {r.data["access"]}')
+    client.force_authenticate(user=staff_user)
     return client
 
 

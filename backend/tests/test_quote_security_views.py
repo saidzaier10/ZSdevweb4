@@ -59,6 +59,7 @@ class TestQuoteSecurityViews:
         # Auth bypasses token check. If PDF does not yet exist, endpoint may return 503.
         assert response.status_code in (200, 503)
 
+    @pytest.mark.with_throttling
     def test_quote_sign_get_rate_limited_after_threshold(self):
         url = reverse('quote-sign', kwargs={'uuid': self.quote.uuid})
 

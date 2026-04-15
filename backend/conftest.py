@@ -26,3 +26,24 @@ def use_dummy_cache(settings):
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
     }
+
+
+@pytest.fixture(autouse=True)
+def disable_throttling(request, settings):
+    """
+    Désactive tout rate limiting en test sauf pour les tests marqués @pytest.mark.with_throttling.
+
+    - RATELIMIT_ENABLE=False      : désactive django_ratelimit (@ratelimit decorator)
+    - mock ScopedRateThrottle     : bypass fiable du throttle DRF (évite les 429 entre tests)
+
+    Les tests qui vérifient le comportement du rate limiting doivent être marqués
+    @pytest.mark.with_throttling — ils ne passent pas par ce bypass.
+    """
+    if request.node.get_closest_marker('with_throttling'):
+        yield
+        return
+
+    settings.RATELIMIT_ENABLE = False
+    from unittest.mock import patch
+    with patch('rest_framework.throttling.ScopedRateThrottle.allow_request', return_value=True):
+        yield
