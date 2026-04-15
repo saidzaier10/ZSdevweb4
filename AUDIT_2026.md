@@ -30,7 +30,7 @@ ZSdevweb4/
 │   ├── audit/                  # Audit gratuit
 │   ├── marketing/              # Marketing
 │   ├── services/               # Service layer (pricing, quotes, PDF, email, recommendations)
-│   ├── tests/                  # 2 fichiers seulement (pricing + quote service)
+│   ├── tests/                  # Suite complète — 128 tests (6 modules + factories.py + conftest.py)
 │   └── zsdevweb/settings/      # base.py / development.py / production.py
 ├── frontend/                   # Vue.js 3 + Vite + Tailwind CSS 3 + Pinia
 │   ├── src/views/              # 14 vues (Home, Services, Portfolio, Contact, Devis, etc.)
@@ -63,14 +63,14 @@ ZSdevweb4/
 | Catégorie | Score | Notes |
 |---|---|---|
 | Architecture & Scalabilité | 9/10 | Dashboard admin, PDF/DB liés, signals idempotents, tout async Celery |
-| Sécurité | 9/10 | JWT cookie HttpOnly, throttling spécifique, Sentry, pre-commit, password reset sécurisé |
+| Sécurité | 9.5/10 | JWT HttpOnly, throttle, SSRF, machine à états, token 128 chars, validators, Sentry, pre-commit |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
 | Tests & Qualité | 8.5/10 | 128 tests backend + 17 Vitest — build propre, Playwright exclus du runner |
 | Frontend (UX/DX) | 9/10 | Dashboard staff, inscription, espace client complet, redirect intelligente |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
-| **GLOBAL** | **8.75/10** | |
+| **GLOBAL** | **8.9/10** | |
 
 ---
 
@@ -92,6 +92,40 @@ ZSdevweb4/
 - **Problème :** `localStorage.setItem('access_token', ...)` vulnérable XSS
 - **Fix recommandé :** refresh_token en cookie HttpOnly, access_token en mémoire
 - **Statut :** ✅ Corrigé — refresh_token HttpOnly, access_token en mémoire Pinia, withCredentials
+
+---
+
+## 🟠 FAILLES SECONDAIRES CORRIGÉES (Audit logique métier — 2026-04-15)
+
+### 5. Troncature potentielle du token de signature
+- **Fichier :** `backend/quotes/models.py`
+- **Problème :** `max_length=64` + `token_urlsafe(48)` → 64 chars générés exactement, risque de troncature selon les variantes base64
+- **Fix :** `max_length=128`, `token_urlsafe(96)` (produit exactement 128 chars), `editable=False`
+- **Statut :** ✅ Corrigé — migration `0003_security_audit_fixes`
+
+### 6. SSRF sur le champ site_url des demandes d'audit
+- **Fichier :** `backend/audit/serializers.py`
+- **Problème :** Aucune validation — un attaquant pouvait soumettre `http://169.254.169.254/` ou `http://localhost/admin/`
+- **Fix :** `validate_site_url()` avec blocklist hostname + rejet des IPs privées/loopback/link-local via `ipaddress`
+- **Statut :** ✅ Corrigé
+
+### 7. Score lead sans contrainte 0-100
+- **Fichier :** `backend/leads/models.py`
+- **Problème :** `score` déclaré `PositiveSmallIntegerField` mais aucun validateur — une valeur aberrante (999) pouvait être sauvegardée
+- **Fix :** `validators=[MinValueValidator(0), MaxValueValidator(100)]`
+- **Statut :** ✅ Corrigé — migration `0002_security_audit_fixes`
+
+### 8. Statut devis modifiable sans machine à états
+- **Fichier :** `backend/quotes/models.py`
+- **Problème :** `quote.status = Quote.STATUS_ACCEPTED` pouvait être fait sans contrôle, permettant des transitions invalides (ex: `draft → accepted` direct)
+- **Fix :** `_STATUS_TRANSITIONS` dict + méthode `transition_to(new_status)` lève `ValidationError` si la transition n'est pas autorisée
+- **Statut :** ✅ Corrigé — `retrieve()` dans `QuoteDetailView` utilise `instance.transition_to(Quote.STATUS_VIEWED)`
+
+### 9. ScopedRateThrottle provoquait des 429 dans les tests
+- **Fichier :** `backend/conftest.py`
+- **Problème :** Le throttle DRF `auth_token` (10/min) s'accumulait entre les tests, causant des `KeyError: 'access'` dans les fixtures et 7 échecs + 10 erreurs
+- **Fix :** Fixture `disable_throttling` (autouse) avec `mock.patch('rest_framework.throttling.ScopedRateThrottle.allow_request', return_value=True)` + exemption via `@pytest.mark.with_throttling` pour le test qui vérifie le comportement 429
+- **Statut :** ✅ Corrigé — 128/128 tests passent
 
 ---
 
@@ -157,6 +191,72 @@ ZSdevweb4/
 ---
 
 ## 🔧 DÉTAILS TECHNIQUES PAR CATÉGORIE
+
+### Sécurité — Audit logique métier (2026-04-15)
+
+**Machine à états Quote — transitions validées :**
+```python
+# backend/quotes/models.py
+_STATUS_TRANSITIONS = {
+    STATUS_DRAFT:    {STATUS_SENT},
+    STATUS_SENT:     {STATUS_VIEWED, STATUS_EXPIRED},
+    STATUS_VIEWED:   {STATUS_ACCEPTED, STATUS_REJECTED, STATUS_EXPIRED},
+    STATUS_ACCEPTED: set(),
+    STATUS_REJECTED: set(),
+    STATUS_EXPIRED:  set(),
+}
+
+def transition_to(self, new_status):
+    allowed = self._STATUS_TRANSITIONS.get(self.status, set())
+    if new_status not in allowed:
+        raise ValidationError(
+            f"Transition de statut '{self.status}' → '{new_status}' non autorisée."
+        )
+    self.status = new_status
+```
+
+**SSRF — Protection AuditRequest.site_url :**
+```python
+# backend/audit/serializers.py
+_BLOCKED_HOSTNAMES = frozenset({
+    'localhost', '127.0.0.1', '0.0.0.0', '::1',
+    '169.254.169.254',  # AWS metadata
+    'metadata.google.internal',
+})
+
+def validate_site_url(self, value):
+    parsed = urlparse(value)
+    hostname = (parsed.hostname or '').lower()
+    if hostname in _BLOCKED_HOSTNAMES:
+        raise serializers.ValidationError('Cette URL ne peut pas être auditée.')
+    try:
+        ip = ipaddress.ip_address(hostname)
+        if ip.is_private or ip.is_loopback or ip.is_link_local:
+            raise serializers.ValidationError('Les adresses IP internes ne sont pas autorisées.')
+    except ValueError:
+        pass  # Nom de domaine — OK
+    return value
+```
+
+**Throttling fiable en tests — mock.patch vs settings override :**
+
+Le remplacement du dict `settings.REST_FRAMEWORK` est insuffisant : DRF met en cache `_user_settings` à la première requête et ne le relit pas. La seule approche fiable est `mock.patch` direct sur la méthode :
+```python
+# backend/conftest.py
+@pytest.fixture(autouse=True)
+def disable_throttling(request, settings):
+    """Bypass global sauf pour les tests @pytest.mark.with_throttling."""
+    if request.node.get_closest_marker('with_throttling'):
+        yield
+        return
+    settings.RATELIMIT_ENABLE = False
+    from unittest.mock import patch
+    with patch('rest_framework.throttling.ScopedRateThrottle.allow_request', return_value=True):
+        yield
+```
+Les tests qui valident le comportement 429 doivent être décorés `@pytest.mark.with_throttling` et utiliser `cache.clear()` dans `setup_method`.
+
+---
 
 ### Architecture — Améliorations clés
 
@@ -276,6 +376,13 @@ script-src 'self' https://js.stripe.com;
 | 2026-04-14 | A11y — IDs dupliqués corrigés : `getCurrentInstance().uid` dans BaseInput + PasswordInput | ✅ Fait |
 | 2026-04-14 | Dashboard — demandes d'audit : `DashboardAuditsList.vue` + KPI `audits_pending` | ✅ Fait |
 | 2026-04-14 | Phase 6 planifiée — 8 améliorations UX & workflow (voir "Prochaines étapes") | 📋 Planifié |
+| 2026-04-15 | Sécurité — `signature_token` max_length 64→128, `token_urlsafe(96)`, `editable=False` | ✅ Fait |
+| 2026-04-15 | Sécurité — SSRF sur `AuditRequest.site_url` : blocklist + rejet IPs privées/loopback | ✅ Fait |
+| 2026-04-15 | Sécurité — `Lead.score` : validators `MinValue(0)/MaxValue(100)` + migration `0002` | ✅ Fait |
+| 2026-04-15 | Architecture — Machine à états `Quote.transition_to()` + `_STATUS_TRANSITIONS` + migration `0003` | ✅ Fait |
+| 2026-04-15 | Tests — `disable_throttling` fixture (`mock.patch ScopedRateThrottle`) — corrige 7 failed + 10 errors | ✅ Fait |
+| 2026-04-15 | Tests — `force_authenticate()` dans `test_dashboard.py`, `@pytest.mark.with_throttling` sur le test 429 | ✅ Fait |
+| 2026-04-15 | Tests — `pytest.ini` : enregistrement marker `with_throttling`, 128/128 passent | ✅ Fait |
 | | Phase 2 — SEO : SSR/pre-rendering | ❌ En attente |
 | | Phase 3 — Tests E2E Playwright | ❌ En attente |
 | | Phase 6 — Améliorations UX & Workflow | ❌ En attente |

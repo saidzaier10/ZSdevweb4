@@ -62,14 +62,14 @@ ZSdevweb4/
 | Catégorie | Score | Notes |
 |---|---|---|
 | Architecture & Scalabilité | 9/10 | Dashboard admin, SOLID/DRY, signals idempotents, Celery tasks |
-| Sécurité | 9/10 | JWT HttpOnly, throttling, Sentry, pre-commit, password reset sécurisé |
+| Sécurité | 9.5/10 | JWT HttpOnly, throttle, SSRF, machine à états, token 128 chars, validators, Sentry |
 | SEO | 7.5/10 | JSON-LD enrichi (LocalBusiness, AggregateRating, FAQPage, Service) |
 | Performance | 8/10 | Lazy loading, WebP auto, cache API, fonts self-hosted |
 | Tests & Qualité | 8.5/10 | 128 collectés (52 sans Docker) — dashboard, register, is_staff |
 | Frontend (UX/DX) | 9/10 | Tableau de bord admin, inscription, skeleton loading, redirect staff |
 | Infrastructure & DevOps | 8/10 | Docker mature, Sentry backend+frontend |
 | Prêt pour Paiement | 3/10 | Tout à construire |
-| **GLOBAL** | **8.75/10** | |
+| **GLOBAL** | **8.9/10** | |
 
 ---
 
@@ -352,6 +352,7 @@ cd frontend && npm test
 - `celery_eager_mode` (autouse) : `CELERY_TASK_ALWAYS_EAGER = True`
 - `disable_email_sending` (autouse) : `EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'`
 - `use_dummy_cache` (autouse) : LocMemCache en test (pas Redis)
+- `disable_throttling` (autouse) : `mock.patch ScopedRateThrottle.allow_request` — bypass fiable du throttle DRF ; les tests qui valident le comportement 429 doivent être décorés `@pytest.mark.with_throttling`
 - `factories.py` : `make_portfolio_item()`, `make_testimonial()`, helpers devis
 
 ### Points d'attention pour les tests
@@ -448,3 +449,6 @@ make backup-db    # Dump PostgreSQL compressé dans ./backups/
 | 2026-04-14 | A11y — IDs dupliqués : `BaseInput` + `PasswordInput` → `getCurrentInstance().uid` |
 | 2026-04-14 | Dashboard — demandes d'audit : `recent_audits` + KPI `audits_pending`, `DashboardAuditsList.vue` |
 | 2026-04-14 | Phase 6 planifiée — notifications email, actions dashboard, pagination/filtre, graphiques, factures, paiements, messagerie, PWA |
+| 2026-04-15 | Sécurité — `signature_token` 128 chars, SSRF sur `site_url`, `Lead.score` validators 0-100 |
+| 2026-04-15 | Architecture — machine à états `Quote.transition_to()` avec `_STATUS_TRANSITIONS` |
+| 2026-04-15 | Tests — `disable_throttling` fixture (mock.patch), `force_authenticate()`, 128/128 passent |
